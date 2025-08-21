@@ -1,0 +1,6 @@
+{
+    "git.ignoreLimitWarning": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.autobuild.enabled": true
+}
