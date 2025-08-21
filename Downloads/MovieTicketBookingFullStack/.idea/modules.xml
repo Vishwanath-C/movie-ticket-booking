@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MovieTicketBooking.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MovieTicketBooking.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/MovieTicketBookingFullStack.iml" filepath="$PROJECT_DIR$/.idea/MovieTicketBookingFullStack.iml" />
-    </modules>
-  </component>
-</project>
