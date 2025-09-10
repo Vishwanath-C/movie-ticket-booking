@@ -1,87 +1,62 @@
 import { useEffect, useState } from "react";
 import apiClient from "../src/api";
 import MovieList from "./MovieList";
-import ShowSeatLayoutDup from "./ShowSeatLayoutDup";
+import EmptyState from "./EmptyState";
+import { Container, Box } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
-const MovieActions = () => {
-    const role = localStorage.getItem('role');
-    const token = localStorage.getItem('token');
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [duration, setDuration] = useState('');
+const MovieActions = ({ nowrunning }) => {
+
+    const role = localStorage.getItem("role");
+    const token = localStorage.getItem("token");
+
+    // let url = role === 'ADMIN' ? "/movies/all-movies" : nowrunning ? "/movies/now-running" :
+    //     "/movies/upcoming-movies";
+
+    let url = nowrunning ? "/movies/now-running" :
+        "/movies/upcoming-movies";
+
     const [movies, setMovies] = useState([]);
-    const [moviesVisible, setMoviesVisible] = useState(false);
-    const [seatLayoutView, setSeatLayoutView] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => { handleShowMovies(); }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            await apiClient.post('/movies/create-movie', {
-                title,
-                description,
-                duration
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            setTitle('');
-            setDescription('');
-            setDuration('');
-
-        } catch (error) {
-
+    useEffect(() => {
+        if (token && role) {
+            fetchMovies();
         }
-    };
+    }, [token, role, nowrunning]);
 
-    const handleShowMovies = async () => {
-        console.log('Inside');
+
+    const fetchMovies = async () => {
+        setLoading(true);
         try {
-            const response = await apiClient.get('/movies/all-movies', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setMovies(response.data);
-            setMoviesVisible(true);
+             const response = await apiClient.get(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+            
+            setMovies(response?.data || []);
         } catch (error) {
-
+            console.error("Error fetching movies:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <>
-            {seatLayoutView ? <ShowSeatLayoutDup /> :
-                (
-                    <>
-                        {role === 'ADMIN' &&
-                            <div className="container mt-4 bg-light text-center border border-dark rounded p-4 mb-4">
-                                <h3 className="fw-bold">Add a movie</h3>
-                                <form onSubmit={handleSubmit}>
-                                    <input className="form-control mb-4" type="text" placeholder="Enter movie title"
-                                        value={title} onChange={(e) => setTitle(e.target.value)} required />
-
-                                    <input className="form-control mb-4" type="text" placeholder="Enter the description"
-                                        value={description} onChange={(e) => setDescription(e.target.value)} required />
-
-                                    <input className="form-control mb-4" type="number" min={0} step={1} placeholder="Enter duration in minutes"
-                                        value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10))} required />
-
-                                    <button className="btn btn-primary" type="submit">Add movie</button>
-                                </form>
-                            </div>}
-
-                        {/* <div className="container mt-4 p-4 mb-4" > */}
-                        <div className="container mt-4 px-0 mb-4" >
-                            {moviesVisible && <MovieList movies={movies} />}
-                        </div>
-                    </>
+        <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+            <Box>
+                {loading ? (
+                    <Box display="flex" justifyContent="center" mt={4}>
+                        <LoadingButton loading variant="outlined">
+                            Loading Movies
+                        </LoadingButton>
+                    </Box>
+                ) : movies.length > 0 ? (
+                    <MovieList movies={movies} />
+                ) : (
+                    <EmptyState heading="No movies" />
                 )}
-        </>
+            </Box>
+        </Container>
     );
 };
 

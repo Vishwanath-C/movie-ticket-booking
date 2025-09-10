@@ -1,20 +1,19 @@
-import { Box, Toolbar } from '@mui/material';
-import Sidebar from './Sidebar';
+import { Box } from "@mui/material";
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = ({ setIsLoggedIn, children }) => {
-    const role = localStorage.getItem('role');
+const ProtectedRoute = ({ setIsLoggedIn }) => {
+  const token = localStorage.getItem("token");
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <Sidebar  setIsLoggedIn={setIsLoggedIn}/>
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <Toolbar />
-                {children}
-            </Box>
-        </Box>
-    );
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      {/* Sidebar + main content */}
+      <Outlet />
+    </Box>
+  );
 };
-
-
 
 export default ProtectedRoute;

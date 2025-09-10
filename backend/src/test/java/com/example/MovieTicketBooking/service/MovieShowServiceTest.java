@@ -10,7 +10,7 @@ public class MovieShowServiceTest
     MovieShowRepository movieShowRepository;
 
     @Mock
-    MovieAssignmentService movieAssignmentService;
+    MovieScheduleService movieScheduleService;
 
     @Mock
     MovieShowResponseDtoMapper movieShowResponseDtoMapper;

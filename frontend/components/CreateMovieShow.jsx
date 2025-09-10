@@ -1,33 +1,67 @@
 import { useState } from "react";
+import { Alert, Stack, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
-// const [showTimes, setShowTimes] = useState([]);
+const CreateMovieShow = ({ showTimes, setShowTimes, maxShows }) => {
+  const [showTime, setShowTime] = useState("");
+  const [showLimitAlert, setShowLimitAlert] = useState(false);
 
-const CreateMovieShow = ({ showTimes, setShowTimes }) => {
-    const [showTime, setShowTime] = useState(null);
+  const handleAddShowTime = (e) => {
+    e.preventDefault();
 
-    const handleAddShowTime = async (e) => {
-        e.preventDefault();
+    if (showTimes.length >= maxShows) {
+      setShowLimitAlert(true);
 
-        try {
-            setShowTimes([...showTimes, showTime]);
-            setShowTime(null);
-        } catch (error) {
-            console.log("Error while creating showtime : ", error);
-        }
-    };
+      // Hide alert after 3 seconds
+      setTimeout(() => setShowLimitAlert(false), 5000);
+      return;
+    }
 
-    return (
-        <>
-            <div className="mb-4">
-                <label className="form-label fw-bold p-2">Select show time : </label>
+    if (!showTime) return;
 
-                <input type="time" className="border border-dark p-2 rounded m-2"
-                    value={showTime}
-                    onChange={e => setShowTime(e.target.value)} />
-                <button className="btn btn-primary" onClick={handleAddShowTime}> Add </button>
-            </div>
-        </>
-    );
+    setShowTimes([...showTimes, showTime]);
+    setShowTime("");
+  };
+
+  const handleCloseAlert = () => {
+    setShowLimitAlert(false);
+  };
+
+  return (
+    <Stack spacing={1} sx={{ mb: 2 }}>
+      <div>
+        <label className="form-label fw-bold p-2">Select show time:</label>
+        <input
+          type="time"
+          className="border border-dark p-2 rounded m-2"
+          value={showTime}
+          onChange={(e) => setShowTime(e.target.value)}
+        />
+        <button className="btn btn-primary" onClick={handleAddShowTime}>
+          Add
+        </button>
+      </div>
+
+      {showLimitAlert && (
+        <Alert
+          severity="warning"
+          variant="outlined"
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={handleCloseAlert}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          You can only add {maxShows} show times.
+        </Alert>
+      )}
+    </Stack>
+  );
 };
 
 export default CreateMovieShow;

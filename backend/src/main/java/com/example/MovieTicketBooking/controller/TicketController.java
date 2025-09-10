@@ -1,7 +1,8 @@
 package com.example.MovieTicketBooking.controller;
 
-import com.example.MovieTicketBooking.dto.TicketDto;
+import com.example.MovieTicketBooking.dto.requestdtos.TicketRequestDto;
 import com.example.MovieTicketBooking.dto.responsedtos.TicketResponseDto;
+import com.example.MovieTicketBooking.exception.ResourceNotFoundException;
 import com.example.MovieTicketBooking.model.User;
 import com.example.MovieTicketBooking.repository.UserRepository;
 import com.example.MovieTicketBooking.service.TicketService;
@@ -30,21 +31,42 @@ public class TicketController {
     UserService userService;
 
     @PostMapping("/create-ticket")
-    public ResponseEntity<TicketResponseDto> createTicket(@RequestBody TicketDto ticketDto) {
-        System.out.println("Inside ticket controller");
-        System.out.println(ticketDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.createTicket(ticketDto));
+    public ResponseEntity<TicketResponseDto> createTicket(@RequestBody TicketRequestDto ticketRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.bookTicket(ticketRequestDto));
     }
 
     @GetMapping("/get-tickets")
     public ResponseEntity<List<TicketResponseDto>> getTicketsByUser(@AuthenticationPrincipal Jwt jwt){
         String email = jwt.getSubject();
-        System.out.println("EMAIL : " + email);
-        User user = userRepository.findByEmail(email);
-        System.out.println(user);
-        Long userId = user.getId();
+        Long userId = userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<TicketResponseDto> responseDtos = ticketService.getTicketsByUserId(userId);
-        System.out.println(responseDtos);
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
+    }
+
+    @GetMapping("upcoming-tickets")
+    public ResponseEntity<List<TicketResponseDto>> getUpcomingTicketsByUser(@AuthenticationPrincipal Jwt jwt){
+        String email = jwt.getSubject();
+
+        Long userId = userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<TicketResponseDto> responseDtos = ticketService.getUpcomingTicketsByUserId(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
+    }
+
+    @GetMapping("finished-tickets")
+    public ResponseEntity<List<TicketResponseDto>> getFinishedTicketsByUser(@AuthenticationPrincipal Jwt jwt){
+        String email = jwt.getSubject();
+        Long userId = userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<TicketResponseDto> responseDtos = ticketService.getFinishedTicketsByUserId(userId);
+
         return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
     }
     

@@ -1,114 +1,116 @@
-import apiClient from "../src/api";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Divider,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "../src/utils/auth";
+import apiClient from "../src/api";
 import TicketList from "./TicketList";
 
-
-
 const MyBookings = () => {
-    const [ticketsVisible, setTicketsVisible] = useState(false);
-    const token = localStorage.getItem('token');
-    const [ticketsUpcoming, setTicketsUpcoming] = useState([]);
-    const [ticketsFinished, setTicketsFinished] = useState([]);
+  const token = localStorage.getItem("token");
+  const [ticketsUpcoming, setTicketsUpcoming] = useState([]);
+  const [ticketsFinished, setTicketsFinished] = useState([]);
+  const [loading, setLoading] = useState(true); // 🔹 new
 
-    useEffect(() => { handleShowTickets(); }, []);
+  useEffect(() => {
+    handleShowTickets();
+  }, []);
 
-    const ticketFinished = () => {
-        const date = new Date(ticket.showDate);
-        const currentDate = new Date();
+  const handleShowTickets = async () => {
+    try {
+      const response = await apiClient.get("/tickets/get-tickets", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (currentDate > date) return true;
-        else {
-            // const showTime = ticket.showTime;
-            // const currentTime = new
-        }
-    };
+      const allTickets = response.data;
+      const finished = [];
+      const upcoming = [];
+      const currentDate = new Date();
 
-    const handleShowTickets = async () => {
-        const user = getCurrentUser();
+      allTickets.forEach((ticket) => {
+        const dateTimeString = `${ticket.showDate}T${ticket.showTime}`;
+        const showDateTime = new Date(dateTimeString);
 
-        try {
-            const response = await apiClient.get(
-                "/tickets/get-tickets",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+        if (showDateTime < currentDate) finished.push(ticket);
+        else upcoming.push(ticket);
+      });
 
-            const allTickets = response.data;
-            const finished = [];
-            const upcoming = [];
+      setTicketsUpcoming(upcoming);
+      setTicketsFinished(finished);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false); // 🔹 stop loading after request
+    }
+  };
 
-            allTickets.forEach(ticket => {
-                const dateTimeString = `${ticket.showDate}T${ticket.showTime}`
-                const showDateTime = new Date(dateTimeString);
-                const currentDate = new Date();
-
-                if(showDateTime < currentDate) finished.push(ticket);
-                else upcoming.push(ticket);
-            });
-            
-            setTicketsUpcoming(upcoming);
-            setTicketsFinished(finished);
-            setTicketsVisible(true);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    // const handleShowTickets = async () => {
-    //     const user = getCurrentUser();
-
-    //     try {
-    //         const response = await apiClient.get(
-    //             "/tickets/get-tickets",
-    //             {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-
-    //         const allTickets = response.data;
-    //         const finished = [];
-    //         const upcoming = [];
-
-    //         allTickets.forEach(ticket => {
-    //             const showDate = new Date(ticket.showDate);
-    //             const currentDate = new Date();
-
-    //             if(showDate < currentDate) finished.push(ticket);
-    //             else if(showDate > currentDate) upcoming.push(ticket);
-    //         });
-    //         setTicketsUpcoming(upcoming);
-    //         setTicketsFinished(finished);
-    //         setTicketsVisible(true);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
+  if (loading) {
     return (
-        <>
-            {/* <div className="container border border-dark rounded bg-light p-4 mb-4 w-50"> */}
-            <div>
-                {/* <button className="btn btn-primary d-block mx-auto mb-4" onClick={handleShowTickets}>Refresh</button> */}
-                <h3 className="text-center">UPCOMING SHOWS</h3>
-                <div className="container mt-4 px-0 mb-4" >
-                    
-                    {ticketsVisible && <TicketList tickets={ticketsUpcoming} />}
-                </div>
-            </div>
+      <Container
+        maxWidth="md"
+        sx={{
+          mt: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 3,
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="h6" color="text.secondary">
+          Loading your tickets...
+        </Typography>
+      </Container>
+    );
+  }
 
-            <div>
-                <h3 className="text-center">FINISHED SHOWS</h3>
-                <div className="container mt-4 px-0 mb-4" >
-                    
-                    {ticketsVisible && <TicketList tickets={ticketsFinished} />}
-                </div>
-            </div>
-        </>
-    )
+  return (
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      {/* Upcoming Tickets */}
+      <Paper
+        elevation={3}
+        sx={{ p: 2, borderRadius: 3, backgroundColor: "#f9fafb", mb: 3 }}
+      >
+        <Typography variant="h5" fontWeight="bold" align="center">
+          UPCOMING
+        </Typography>
+      </Paper>
+      <Box sx={{ mb: 5 }}>
+        {ticketsUpcoming.length > 0 ? (
+          <TicketList tickets={ticketsUpcoming} />
+        ) : (
+          <Typography align="center" color="text.secondary">
+            No upcoming tickets.
+          </Typography>
+        )}
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
+
+      {/* Finished Tickets */}
+      <Paper
+        elevation={3}
+        sx={{ p: 2, borderRadius: 3, backgroundColor: "#f9fafb", mb: 3 }}
+      >
+        <Typography variant="h5" fontWeight="bold" align="center">
+          FINISHED
+        </Typography>
+      </Paper>
+      <Box sx={{ mb: 5 }}>
+        {ticketsFinished.length > 0 ? (
+          <TicketList tickets={ticketsFinished} />
+        ) : (
+          <Typography align="center" color="text.secondary">
+            No finished tickets.
+          </Typography>
+        )}
+      </Box>
+    </Container>
+  );
 };
 
 export default MyBookings;

@@ -1,12 +1,14 @@
 package com.example.MovieTicketBooking.controller;
 
-import com.example.MovieTicketBooking.dto.MovieDto;
+import com.example.MovieTicketBooking.dto.requestdtos.MovieRequestDto;
 import com.example.MovieTicketBooking.dto.responsedtos.MovieResponseDto;
 import com.example.MovieTicketBooking.model.Movie;
 import com.example.MovieTicketBooking.service.MovieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +21,29 @@ public class MovieController {
     MovieService movieService;
 
     @PostMapping("/create-movie")
-    public ResponseEntity<Movie> createMovie(@RequestBody MovieDto movieDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(movieService.createMovie(movieDto));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Movie> createMovie(@Valid @RequestBody MovieRequestDto movieRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(movieService.createMovie(movieRequestDto));
     }
 
     @GetMapping("/all-movies")
     public ResponseEntity<List<MovieResponseDto>> getAllMovies() {
         return ResponseEntity.ok(movieService.getAllMovies());
+    }
+
+    @GetMapping("/movies-with-shows")
+    public ResponseEntity<List<MovieResponseDto>> getMoviesWithShows(){
+        return ResponseEntity.ok(movieService.getMoviesWithShows());
+    }
+
+    @GetMapping("/upcoming-movies")
+    public ResponseEntity<List<MovieResponseDto>> getUpcomingMovies(){
+        return ResponseEntity.ok(movieService.getUpcomingMovies());
+    }
+
+    @GetMapping("/now-running")
+    public ResponseEntity<List<MovieResponseDto>> getCurrentlyRunningMovies(){
+        return ResponseEntity.ok(movieService.getCurrentShowingMovies());
     }
 
     @GetMapping("/title/{title}")

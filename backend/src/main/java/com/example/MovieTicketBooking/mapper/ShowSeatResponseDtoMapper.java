@@ -15,6 +15,7 @@ public class ShowSeatResponseDtoMapper
                 .booked(showSeat.isBooked())
                 .movieShowId(showSeat.getMovieShow().getId())
                 .seatId(showSeat.getSeat().getId())
+                .seatType(showSeat.getSeat().getSeatType())
                 .build();
     }
 }

@@ -1,13 +1,13 @@
 package com.example.MovieTicketBooking.service;
 
-import com.example.MovieTicketBooking.dto.requestdtos.MovieAssignmentRequestDto;
-import com.example.MovieTicketBooking.dto.responsedtos.MovieAssignmentResponseDto;
-import com.example.MovieTicketBooking.mapper.MovieAssignmentRequestMapper;
-import com.example.MovieTicketBooking.mapper.MovieAssignmentResponseMapper;
-import com.example.MovieTicketBooking.model.MovieAssignment;
+import com.example.MovieTicketBooking.dto.requestdtos.MovieScheduleRequestDto;
+import com.example.MovieTicketBooking.dto.responsedtos.MovieScheduleResponseDto;
+import com.example.MovieTicketBooking.mapper.MovieScheduleRequestMapper;
+import com.example.MovieTicketBooking.mapper.MovieScheduleResponseMapper;
+import com.example.MovieTicketBooking.model.MovieSchedule;
 import com.example.MovieTicketBooking.model.MovieShow;
 import com.example.MovieTicketBooking.model.Theatre;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,30 +15,22 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 @Service
+@RequiredArgsConstructor
 public class MovieSharedService
 {
-    @Autowired
-    MovieAssignmentService movieAssignmentService;
-
-    @Autowired
-    MovieShowService movieShowService;
-
-    @Autowired
-    MovieAssignmentRequestMapper requestMapper;
-
-    @Autowired
-    MovieAssignmentResponseMapper responseMapper;
-
-    @Autowired
-    TheatreService theatreService;
+    private final MovieScheduleService movieScheduleService;
+    private final MovieShowService movieShowService;
+    private final MovieScheduleRequestMapper requestMapper;
+    private final MovieScheduleResponseMapper responseMapper;
+    private final TheatreService theatreService;
 
     @Transactional
-    public MovieAssignmentResponseDto createMovieShows(MovieAssignmentRequestDto dto) {
-        MovieAssignmentResponseDto movieAssignmentResponseDto = movieAssignmentService.createMovieAssignment(dto);
-        MovieAssignment movieAssignment = movieAssignmentService.getAssignmentById(movieAssignmentResponseDto.getId());
+    public MovieScheduleResponseDto createMovieShows(MovieScheduleRequestDto dto) {
+        MovieScheduleResponseDto movieScheduleResponseDto = movieScheduleService.createMovieSchedule(dto);
+        MovieSchedule movieSchedule = movieScheduleService.getScheduleById(movieScheduleResponseDto.getId());
         long numberOfDays = ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) + 1;
         LocalDate currentDate = dto.getStartDate();
-        Theatre theatre = theatreService.getTheatreById(dto.getTheatreId());
+        Theatre theatre = theatreService.getTheatreEntityById(dto.getTheatreId());
 
 
         for (int i = 0; i < numberOfDays; i++) {
@@ -46,14 +38,14 @@ public class MovieSharedService
                 MovieShow movieShow = MovieShow.builder()
                         .showTime(dto.getShowTimings().get(j))
                         .showDate(currentDate)
-                        .movieAssignment(movieAssignment)
-                        .availableSeatsCount(movieAssignment.getTheatre().getSeats().size())
+                        .movieSchedule(movieSchedule)
+                        .availableSeatsCount(movieSchedule.getTheatre().getSeats().size())
                         .build();
                 movieShowService.createMovieShow(movieShow, theatre);
             }
             currentDate = currentDate.plusDays(1);
         }
-        return responseMapper.convertTResponseDto(movieAssignment);
+        return responseMapper.convertTResponseDto(movieSchedule);
     }
 
 }

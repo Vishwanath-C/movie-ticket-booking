@@ -1,5 +1,6 @@
 package com.example.MovieTicketBooking.dto.responsedtos;
 
+import com.example.MovieTicketBooking.model.enums.SeatType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +20,5 @@ public class ShowSeatResponseDto
     private boolean booked;
     private Long movieShowId;
     private Long seatId;
+    private SeatType seatType;
 }

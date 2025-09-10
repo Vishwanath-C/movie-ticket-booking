@@ -38,7 +38,7 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path,
       },
-      "/movie-assignments": {
+      "/movie-schedules": {
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,

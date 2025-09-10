@@ -1,34 +1,81 @@
-
+import { Card, CardContent, CardActions, Typography, Button, Box, CardMedia } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import NoImageAvailable from "../src/assets/no-image-available.png"
 
 const MovieCard = ({ movie }) => {
   const role = localStorage.getItem('role');
   const navigate = useNavigate();
-
-  // const handleBooking = () => {
-  //   navigate('/app/bookings', { state: { movie } });
-  // };
-
+  
   const handleBooking = () => {
-    navigate(`/app/bookings/${movie.id}`);
+    console.log("MO ", movie);
+    navigate(`/app/bookings/${movie.id}`, {state: {movie}});
   };
 
   return (
-    <div className="card h-100 shadow-sm border border-dark">
-      <div className="card-body">
-        <h4 className="fw-bold text-center bg-primary text-white p-2 border rounded">{movie.title}</h4>
-        <p className="fst-italic">{movie.description}</p>
-        <div className="d-flex mb-1">
-          <p className="fw-semibold">Duration</p> : {movie.duration} minutes
-        </div>
-        <div className="mt-auo text-center">
-          {role === 'USER' && (
-            <button className="btn btn-primary" onClick={handleBooking}>Book</button>
-          )}
-        </div>
+    <Card
+      sx={{
+        width: 220,
+        borderRadius: 3,
+        overflow: "hidden",
+        boxShadow: 6,
+        transition: "transform 0.2s, box-shadow 0.2s",
+        "&:hover": {
+          transform: "translateY(-5px)",
+          boxShadow: 10,
+        },
+      }}
+    >
+      {/* Top Box - Poster */}
+      <Box sx={{ height: 220, overflow: "hidden" }}>
+        <CardMedia
+          component="img"
+          image={NoImageAvailable}
+          alt={movie.title}
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",   // shows full image without cropping
+            backgroundColor: "#000" // fills empty space if aspect ratio differs
+          }}
+        />
+      </Box>
 
-      </div>
-    </div>
+      {/* Bottom Box - Info + Actions */}
+      <Box sx={{ p: 2, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        {/* Movie Title */}
+        <Typography
+          variant="h6"
+          align="center"
+          sx={{
+            fontWeight: "bold",
+            color: "primary.main",
+            textTransform: "uppercase",
+            mb: 1,
+          }}
+        >
+          {movie.title}
+        </Typography>
+
+        {/* Book/View Button */}
+        <CardActions sx={{ justifyContent: "center", mt: 1 }}>
+          {(role === "ADMIN" || role === "USER") && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleBooking}
+              sx={{
+                fontWeight: "bold",
+                px: 4,
+                borderRadius: 2,
+                textTransform: "capitalize",
+              }}
+            >
+              {role === "ADMIN" ? "View Shows" : "Book"}
+            </Button>
+          )}
+        </CardActions>
+      </Box>
+    </Card>
   );
 };
 

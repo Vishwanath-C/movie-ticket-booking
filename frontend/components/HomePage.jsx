@@ -1,49 +1,46 @@
-import { Box, CssBaseline, Toolbar } from '@mui/material';
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar";
+import { Box, Button, Container, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const HomePage = ({ isLoggedIn, setIsLoggedIn }) => {
+const HomePage = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-    const location = useLocation();
-    const isDefaultRoute = location.pathname === '/';
+  const handleRegisterClick = () => navigate("/register");
+  const handleLoginClick = () => navigate("/login");
 
-    // const role = localStorage.getItem('role');
+  return (
+    <Container maxWidth="sm" sx={{ mt: 5, textAlign: "center" }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        🎬 Welcome to Movie Ticket Booking
+      </Typography>
 
-    const handleRegisterClick = () => {
-        navigate('/register');
-    };
-    const handleLoginClick = () => {
-        navigate('/login');
-    };
+      {!isLoggedIn && (
+        <Box sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={handleRegisterClick}
+          >
+            Register
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="large"
+            onClick={handleLoginClick}
+          >
+            Login
+          </Button>
+        </Box>
+      )}
 
-    return (
-        <div>
-            <Box sx={{ display: 'flex' }}>
-
-                <CssBaseline />
-
-                {isLoggedIn && <Sidebar setIsLoggedIn={setIsLoggedIn} />}
-
-                {/* Main Content */}
-                <Box component="main" sx={{ flexGrow: 1, p: 3 }} >
-                    <Toolbar />
-                    <Outlet />
-                    {isDefaultRoute && (
-                        <div className="d-flex flex-column align-items-center">
-
-                            <button className="btn btn-primary w-50 mb-4"
-                                onClick={() => handleRegisterClick()}>Register</button>
-
-                            <button className="btn btn-primary w-50"
-                                onClick={() => handleLoginClick()}>Login</button>
-                        </div>
-                    )}
-                </Box>
-            </Box >
-
-        </div>
-    );
+      {isLoggedIn && (
+        <Typography variant="h6" sx={{ mt: 4 }}>
+          You are logged in. Navigate to the dashboard to manage movies and bookings.
+        </Typography>
+      )}
+    </Container>
+  );
 };
 
 export default HomePage;

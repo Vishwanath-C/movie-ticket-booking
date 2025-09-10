@@ -1,6 +1,6 @@
 package com.example.MovieTicketBooking.service;
 
-import com.example.MovieTicketBooking.dto.MovieDto;
+import com.example.MovieTicketBooking.dto.requestdtos.MovieRequestDto;
 import com.example.MovieTicketBooking.dto.responsedtos.MovieResponseDto;
 import com.example.MovieTicketBooking.mapper.MovieDtoMapper;
 import com.example.MovieTicketBooking.mapper.MovieResponseDtoMapper;
@@ -35,7 +35,7 @@ public class MovieServiceTest
     private  MovieService movieService;
 
     private Movie movie;
-    private MovieDto movieDto;
+    private MovieRequestDto movieRequestDto;
 
     @BeforeEach
     void setUp(){
@@ -43,15 +43,15 @@ public class MovieServiceTest
 
         movie = Movie.builder().id(1L).title("KGF").description("Action").duration(100).build();
 
-       movieDto = MovieDto.builder().title("KGF").description("Action").duration(150).build();
+       movieRequestDto = MovieRequestDto.builder().title("KGF").description("Action").duration(150).build();
     }
 
     @Test
     void testCreateMovie(){
-        when(movieDtoMapper.dtoToMovie(movieDto)).thenReturn(movie);
+        when(movieDtoMapper.dtoToMovie(movieRequestDto)).thenReturn(movie);
         when(movieRepository.save(movie)).thenReturn(movie);
 
-        Movie result = movieService.createMovie(movieDto);
+        Movie result = movieService.createMovie(movieRequestDto);
 
         assertNotNull(result);
         assertEquals("KGF", result.getTitle());
@@ -80,8 +80,8 @@ public class MovieServiceTest
 
         when(movieRepository.findAll()).thenReturn(movies);
 
-        MovieResponseDto dtoKFG = MovieResponseDto.builder().id(1L).title("KGF").description("Action").duration(150).build();
-        MovieResponseDto dtoSuFromSo = MovieResponseDto.builder().id(2L).title("Su from so").description("Comedy").duration(120).build();
+        MovieResponseDto dtoKFG = MovieResponseDto.builder().id(1L).title("KGF").description("Action").durationMinutes(150).build();
+        MovieResponseDto dtoSuFromSo = MovieResponseDto.builder().id(2L).title("Su from so").description("Comedy").durationMinutes(120).build();
 
         when(movieResponseDtoMapper.movieToDto(movieKGF)).thenReturn(dtoKFG);
         when(movieResponseDtoMapper.movieToDto(movieSuFromSo)).thenReturn(dtoSuFromSo);
@@ -96,7 +96,7 @@ public class MovieServiceTest
 
     @Test
     void testGetByTitle(){
-        when(movieRepository.findByTitle("KGF")).thenReturn(movie);
+        when(movieRepository.findByTitle("KGF")).thenReturn(Optional.ofNullable(movie));
 
         Movie result = movieService.getByTitle("KGF");
 

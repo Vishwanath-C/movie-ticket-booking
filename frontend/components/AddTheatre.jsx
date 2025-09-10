@@ -1,64 +1,80 @@
 import { useState } from "react";
-// import axios from "axios";
-import apiClient from '../src/api';
-
+import apiClient from "../src/api";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from "@mui/material";
 
 const AddTheatre = () => {
-    const [name, setName] = useState('');
-    const [location, setLocation] = useState('');
-    const [goldRowCount, setGoldRowCount] = useState('');
-    const [goldColCount, setGoldColCount] = useState('');
-    const [normalRowCount, setNormalRowCount] = useState('');
-    const [normalColCount, setNormalColCount] = useState('');
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const token = localStorage.getItem("token");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        // const parsedGoldRowCount = parseInt(goldRowCount, 10);
-        // const parsedGoldColCount = parseInt(goldColCount, 10);
-        // const parsedNormalRowCount = parseInt(normalRowCount, 10);
-        // const parsedNormalColCount = parseInt(normalColCount, 10);
-     
-        try {
-            const response = await apiClient.post('/theatres/create-theatre', {
-                name,
-                location,
-                // goldRowCount: parsedGoldRowCount,
-                // goldColCount: parsedGoldColCount,
-                // normalRowCount: parsedNormalRowCount,
-                // normalColCount: parsedNormalColCount,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+    try {
+      const response = await apiClient.post(
+        "/theatres/create-theatre",
+        { name, location },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-            setName('');
-            setLocation('');
- 
-            console.log(response.data);
-        } catch (error) {
+      setName("");
+      setLocation("");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Failed to add theatre:", error);
+    }
+  };
 
-        }
+  return (
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 3, backgroundColor: "#f9fafb" }}>
+        <Box>
+          <Typography variant="h5" align="center" gutterBottom fontWeight="bold">
+            Add a Theatre
+          </Typography>
+        </Box>
 
-    };
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Theatre Name"
+            placeholder="Enter theatre name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            margin="normal"
+          />
 
-    return (
-        <div className="container mt-4 border border-dark rounded bg-light p-4 mb-4 w-50">
-            <h3 className="text-center mb-4 fw-bold">Add a theatre</h3>
-            <form onSubmit={handleSubmit}>
-                <input className="form-control mb-4" type="text" placeholder="Enter theatre name"
-                    value={name} onChange={e => setName(e.target.value)} required />
+          <TextField
+            fullWidth
+            label="Location"
+            placeholder="Enter location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+            margin="normal"
+          />
 
-                <input className="form-control mb-4" type="text" placeholder="Enter location"
-                    value={location} onChange={e => setLocation(e.target.value)} required />
-
-                <button className="btn btn-primary mb-4 d-block mx-auto" type="submit" >Add theatre</button>
-            </form>
-        </div>
-    );
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3, borderRadius: 2 }}
+          >
+            Add Theatre
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
+  );
 };
 
 export default AddTheatre;

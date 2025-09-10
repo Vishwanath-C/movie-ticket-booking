@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +16,8 @@ public class MovieResponseDto {
     private Long id;
     private String title;
     private String description;
-    private int duration;
+    private int durationMinutes;
+    private boolean isCurrentlyRunning;
+    private boolean isUpcoming;
+    private List<LocalDate> availableShowDates;
 }

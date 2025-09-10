@@ -1,31 +1,50 @@
 package com.example.MovieTicketBooking.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "show_seat")
-@Data
+@Table(
+        name = "show_seat",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"movie_show_id", "seat_id"})
+)
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ShowSeat
-{
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
+public class ShowSeat {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
-    @ManyToOne
+    // Each ShowSeat belongs to a specific MovieShow
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_show_id", nullable = false)
+    @NotNull(message = "MovieShow is required")
     private MovieShow movieShow;
 
-    @ManyToOne
+    // The physical seat that this ShowSeat represents
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_id", nullable = false)
+    @NotNull(message = "Seat is required")
     private Seat seat;
 
+    // Price of this seat for the show
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Price cannot be negative")
     private BigDecimal price;
-    private boolean booked;
+
+    // Indicates whether the seat has been booked
+    @Builder.Default
+    private boolean booked = false;
 }

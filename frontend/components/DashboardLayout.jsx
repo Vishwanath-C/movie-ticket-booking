@@ -1,17 +1,30 @@
-import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import { Box } from "@mui/material";
+import AppBarComponent from "./AppBarComponent";
+import Sidebar from "./Sidebar";
+import { Outlet } from "react-router-dom";
 
-const DashboardLayout = () => {
-    const drawerWidth = 160;
+const Layout = ({ setIsLoggedIn }) => {
+    const SIDEBAR_WIDTH = 240;
 
     return (
-        <div style={{ display: 'flex' }}>
-            {/* <Sidebar setIsLoggedIn={setIsLoggedIn} /> */}
-            <main style={{ flexGrow: 1, padding: '16px' }}>
+        <Box sx={{ display: "flex" }}>
+            <Sidebar setIsLoggedIn={setIsLoggedIn} width={SIDEBAR_WIDTH} />
+
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    
+                    mt: "90px", // top offset for AppBar
+                    minHeight: `calc(100vh - 90px)`,
+                    px: 3,
+                }}
+            >
+                <AppBarComponent isLoggedIn={true} setIsLoggedIn={setIsLoggedIn} />
                 <Outlet />
-            </main>
-        </div>
+            </Box>
+        </Box>
     );
 };
 
-export default DashboardLayout;
+export default Layout;

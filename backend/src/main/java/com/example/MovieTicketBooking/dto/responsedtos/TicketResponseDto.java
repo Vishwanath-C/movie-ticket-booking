@@ -1,6 +1,7 @@
 package com.example.MovieTicketBooking.dto.responsedtos;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,11 +13,12 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TicketResponseDto
 {
-    private Long ticket_id;
-    private String movie_name;
-    private String theatre_name;
+    private Long ticketId;
+    private String movieTitle;
+    private String theatreName;
     private LocalDate showDate;
     private LocalTime showTime;
     private List<String> seatNumbers;

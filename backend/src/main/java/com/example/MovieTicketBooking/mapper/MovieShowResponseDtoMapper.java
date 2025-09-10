@@ -28,13 +28,13 @@ public class MovieShowResponseDtoMapper
 
         return MovieShowResponseDto.builder()
                 .id(movieShow.getId())
-                .movieAssignmentId(movieShow.getMovieAssignment().getId())
+                .movieScheduleId(movieShow.getMovieSchedule().getId())
                 .showDate(movieShow.getShowDate())
                 .showTime(movieShow.getShowTime().format(formatter))
                 .showSeats(responseDtos)
                 .availableSeatsCount(movieShow.getAvailableSeatsCount())
-                .theatreName(movieShow.getMovieAssignment().getTheatre().getName())
-                .theatreLocation(movieShow.getMovieAssignment().getTheatre().getLocation())
+                .theatreName(movieShow.getMovieSchedule().getTheatre().getName())
+                .theatreLocation(movieShow.getMovieSchedule().getTheatre().getLocation())
                 .build();
     }
 }

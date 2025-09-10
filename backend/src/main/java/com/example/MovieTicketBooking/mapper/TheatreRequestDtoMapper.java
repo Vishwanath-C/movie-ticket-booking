@@ -12,7 +12,7 @@ public class TheatreRequestDtoMapper {
         Theatre theatre = new Theatre();
         theatre.setName(theatreRequestDto.name());
         theatre.setLocation(theatreRequestDto.location());
-        theatre.setMovieAssignments(new ArrayList<>());
+        theatre.setMovieSchedules(new ArrayList<>());
         theatre.setSeats(new ArrayList<>());
 
         return theatre;

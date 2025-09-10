@@ -1,29 +1,29 @@
 package com.example.MovieTicketBooking.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "ticket_seat",
     uniqueConstraints = @UniqueConstraint(columnNames = {"seat_id", "movie_show_id"}))
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class TicketSeat {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "seat_id", nullable = false)
+    @JoinColumn(name = "show_seat_id", nullable = false)
     private ShowSeat showSeat;
-
-    @ManyToOne
-    @JoinColumn(name = "movie_show_id", nullable = false)
-    private MovieShow movieShow;
 
     @ManyToOne
     private Ticket ticket;

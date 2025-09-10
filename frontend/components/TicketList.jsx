@@ -1,15 +1,16 @@
+import { Grid } from "@mui/material";
 import Ticket from "./Ticket";
 
 const TicketList = ({ tickets }) => {
-    return (
-        <div className="row">
-            {tickets.map(ticket => (
-                <div className="col-md-6 mb-4" key={ticket.id}>
-                    <Ticket  ticket={ticket} />
-                </div>
-            ))}
-        </div>
-    );
+  return (
+    <Grid container spacing={3}>
+      {tickets.map((ticket) => (
+        <Grid item xs={12} sm={6} md={4} key={ticket.id}>
+          <Ticket ticket={ticket} />
+        </Grid>
+      ))}
+    </Grid>
+  );
 };
 
 export default TicketList;

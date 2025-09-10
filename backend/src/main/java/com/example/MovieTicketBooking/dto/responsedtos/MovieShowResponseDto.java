@@ -18,7 +18,7 @@ public class MovieShowResponseDto
     private LocalDate showDate;
     private String showTime;
     private int availableSeatsCount;
-    private Long movieAssignmentId;
+    private Long movieScheduleId;
     private List<ShowSeatResponseDto> showSeats;
     private String theatreName;
     private String theatreLocation;

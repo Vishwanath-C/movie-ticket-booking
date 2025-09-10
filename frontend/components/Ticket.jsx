@@ -1,64 +1,113 @@
-import ticketBackground from '../src/assets/ticketBackground.png';
+import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
 
 const Ticket = ({ ticket }) => {
+  const convertTo12Hour = (time24) => {
+    if (!time24) return "";
+    const [hourStr, minute] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour.toString().padStart(2, "0")}:${minute} ${ampm}`;
+  };
 
-    const convertTo12Hour = (time24) => {
-        const [hourStr, minute, second] = time24.split(':');
-        let hour = parseInt(hourStr, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        hour = hour % 12;
-        if (hour === 0) hour = 12;
-        return `${hour.toString().padStart(2, '0')}:${minute} ${ampm}`;
-    };
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        width: 250,
+        height: 300,
+        borderRadius: 4,
+        boxShadow: 4,
+        mb: 3,
+        backgroundColor: "#fafafa",
+        transition: "transform 0.2s, box-shadow 0.2s",
+        // "&:hover": {
+        //   transform: "scale(1.03)",
+        //   boxShadow: 6,
+        // },
+        mx: "auto",
+      }}
+    >
+      <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {/* Movie Title */}
+        <Box
+          sx={{
+            textAlign: "center",
+            p: 1,
+            borderRadius: 2,
+            backgroundColor: "primary.main",
+            color: "white",
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold">
+            {ticket.movieTitle}
+          </Typography>
+        </Box>
 
-
-
-    return (
-        <div
-
-            className="card h-100 shadow-sm bg-danger">
-            <div className="card-body">
-                <div className="bg-white text-center p-2 border rounded">
-                    <h4 className="fw-bold">{ticket.movie_name}</h4>
-                </div>
-                <div className="card p-3 shadow-sm mb-2">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td><p className="fw-semibold mb-0">Theatre   </p></td>
-                                <td>{ticket.theatre_name}</td>
-                            </tr>
-                            <tr>
-                                <td><p className="fw-semibold mb-0">Date   </p></td>
-                                <td>{ticket.showDate}</td>
-                            </tr>
-                            <tr>
-                                <td><p className="fw-semibold mb-0">Time  </p></td>
-                                <td>{convertTo12Hour(ticket.showTime)}</td>
-                            </tr>
-                            <tr>
-                                <td><p className="fw-semibold mb-0">Total Price</p></td>
-                                <td>₹{ticket.totalPrice}</td>
-                            </tr>
-                            <tr>
-                                <td><p className="fw-semibold mb-0">Seat Numbers</p></td>
-                                <td>
-                                    <div className="d-flex gap-2 flex-wrap">
-                                        {(ticket.seatNumbers || []).map((s) => (
-                                            <span key={s} className="badge bg-secondary">{s}</span>
-                                        ))}
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-
-        </div>
-    );
+        {/* Ticket Details */}
+        <Box component="table" sx={{ width: "100%", tableLayout: "fixed" }}>
+          <tbody>
+            <tr>
+              <td>
+                <Typography fontWeight="bold">Theatre</Typography>
+              </td>
+              <td>
+                <Typography>{ticket.theatreName}</Typography>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Typography fontWeight="bold">Date</Typography>
+              </td>
+              <td>
+                <Typography>{ticket.showDate}</Typography>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Typography fontWeight="bold">Time</Typography>
+              </td>
+              <td>
+                <Typography>{convertTo12Hour(ticket.showTime)}</Typography>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Typography fontWeight="bold">Total Price</Typography>
+              </td>
+              <td>
+                <Typography color="success.main">₹{ticket.totalPrice}</Typography>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Typography fontWeight="bold">Seats</Typography>
+              </td>
+              <td>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)", // two seats per row
+                    gap: 1,
+                  }}
+                >
+                  {(ticket.seatNumbers || []).map((s) => (
+                    <Chip
+                      key={s}
+                      label={s}
+                      size="small"
+                      color="secondary"
+                      sx={{ width: "100%", justifyContent: "center" }}
+                    />
+                  ))}
+                </Box>
+              </td>
+            </tr>
+          </tbody>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default Ticket;
-

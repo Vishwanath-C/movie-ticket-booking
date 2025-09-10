@@ -1,40 +1,47 @@
 package com.example.MovieTicketBooking.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "theatre")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Theatre
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "theatre_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false, length = 100)
+    @NotBlank
+    @Size(max = 100)
+    @ToString.Include
     private String name;
 
+    @Column(nullable = false, length = 200)
+    @NotBlank
+    @Size(max = 200)
+    @ToString.Include
     private String location;
 
-    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Seat> seats;
 
-    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MovieAssignment> movieAssignments;
+    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MovieSchedule> movieSchedules;
 
-    @Override
-    public String toString() {
-        return "Theatre [id=" + id + ", name=" + name + ", location=" + location + "]";
-    }
+
 }

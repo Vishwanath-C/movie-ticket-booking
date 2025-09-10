@@ -1,213 +1,306 @@
-import apiClient from "../src/api";
 import { useEffect, useState } from "react";
-import { Dropdown, DropdownButton } from "react-bootstrap";
-// import { showTimes } from "./CreateMovieShow";
-
+import {
+  Box,
+  Container,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Paper,
+  Stack,
+  Divider,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Tooltip,
+  Alert,
+  Typography,
+} from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CloseIcon from "@mui/icons-material/Close";
+import apiClient from "../src/api";
 import CreateMovieShow from "./CreateMovieShow";
 
-
 const AssignMovieToTheatre = () => {
+  const token = localStorage.getItem("token");
 
-    const [theatres, setTheatres] = useState([]);
-    const [selectedTheatre, setSelectedTheatre] = useState(null);
-    const [movies, setMovies] = useState([]);
-    const [selectedMovie, setSelectedMovie] = useState(null);
-    const [showTime, setShowTime] = useState(null);
-    const token = localStorage.getItem('token');
-    const [showTimes, setShowTimes] = useState([]);
+  const [theatres, setTheatres] = useState([]);
+  const [selectedTheatre, setSelectedTheatre] = useState(null);
+  const [movies, setMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const today = new Date().toISOString().split('T')[0];
+  const [showTimes, setShowTimes] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showsPerDay, setShowsPerDay] = useState(0);
 
-    const [showsPerDay, setShowsPerDay] = useState(0);
+  const [successAlert, setSuccessAlert] = useState({ show: false, msg: "" });
+  const [errorAlert, setErrorAlert] = useState({ show: false, msg: "" });
 
-    useEffect(() => { fetchTheatres(); }, []);
+  useEffect(() => {
+    fetchTheatres();
+  }, []);
 
-    useEffect(() => {
-        console.log("Updated showTimes:", showTimes);
-    }, [showTimes]);
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const minDate = tomorrow.toISOString().split("T")[0];
 
+  const fetchTheatres = async () => {
+    try {
+      const response = await apiClient.get("/theatres/get-all-theatres", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTheatres(response.data || []);
+    } catch (error) {
+      console.error("Error fetching theatres:", error);
+    }
+  };
 
+  const fetchMovies = async () => {
+    try {
+      const response = await apiClient.get("/movies/all-movies", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMovies(response.data || []);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
 
+  const handleShowTimesUpdate = (newShowTimes) => setShowTimes(newShowTimes);
 
+  const handleDeleteTime = (indexToRemove) =>
+    setShowTimes((prev) => prev.filter((_, i) => i !== indexToRemove));
 
-    const fetchTheatres = async () => {
-        // e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedTheatre || !selectedMovie) return;
 
-        try {
-            const response = await apiClient.get('/theatres/get-all-theatres', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setTheatres(response.data);
-            console.log(theatres);
-        } catch (error) {
-            console.error("Error fetching theatres:", error);
-        }
+    if (!startDate || !endDate || showTimes.length === 0) {
+      setErrorAlert({ show: true, msg: "Please fill all fields and add showtimes." });
+      setTimeout(() => setErrorAlert({ show: false, msg: "" }), 3000);
+      return;
+    }
 
-    };
+    try {
+      await apiClient.post(
+        "/movie-schedules/create-schedule",
+        {
+          theatreId: selectedTheatre.id,
+          movieId: selectedMovie.id,
+          numberOfShowsPerDay: showsPerDay,
+          showTimings: showTimes,
+          startDate,
+          endDate,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
+      setSuccessAlert({
+        show: true,
+        msg: `Movie "${selectedMovie.title}" assigned to "${selectedTheatre.name}" successfully!`,
+      });
+      setTimeout(() => setSuccessAlert({ show: false, msg: "" }), 3000);
 
+      setSelectedTheatre(null);
+      setSelectedMovie(null);
+      setStartDate(null);
+      setEndDate(null);
+      setShowTimes([]);
+      setShowsPerDay(0);
+    } catch (error) {
+      console.error("Error assigning movie:", error);
+      setErrorAlert({ show: true, msg: "Failed to assign the movie. Please try again." });
+      setTimeout(() => setErrorAlert({ show: false, msg: "" }), 3000);
+    }
+  };
 
-    const fetchMovies = async () => {
-        // e.preventDefault();
+  return (
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+    <Paper elevation={3} sx={{ p: 4, borderRadius: 3, backgroundColor: "#f9fafb" }}>
+        <Box>
+          <Typography variant="h5" align="center" gutterBottom fontWeight="bold">
+            Assign movie
+          </Typography>
+        </Box>
 
-        try {
-            const response = await apiClient.get('/movies/all-movies', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setMovies(response.data);
-        } catch (error) {
-            console.error("Error fetching movies : ", error);
-        }
-    };
+        <Divider sx={{ mb: 3 }} />
 
-    const handleAddShowTime = async (e) => {
-        e.preventDefault();
+        <Box component="form" onSubmit={handleSubmit}>
+          <Stack spacing={3} sx={{ width: "100%" }}>
+            {/* Theatre Select */}
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Select theatre</InputLabel>
+              <Select
+                value={selectedTheatre?.id ?? ""}
+                onChange={(e) => {
+                  const theatre = theatres.find((t) => t.id === e.target.value) || null;
+                  setSelectedTheatre(theatre);
+                  setSelectedMovie(null);
+                  setShowTimes([]);
+                  fetchMovies();
+                }}
+                fullWidth
+                label="Select theatre"
+                
+              >
+                {theatres.map((theatre) => (
+                  <MenuItem key={theatre.id} value={theatre.id}>
+                    {theatre.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-        try {
-            setShowTimes([...showTimes, showTime]);
-            setShowTime(null);
-        } catch (error) {
-            console.log("Error while creating showtime : ", error);
-        }
-    };
+            {/* Movie Select */}
+            {selectedTheatre && (
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Select movie</InputLabel>
+                <Select
+                  value={selectedMovie?.id ?? ""}
+                  onChange={(e) => {
+                    const movie = movies.find((m) => m.id === e.target.value) || null;
+                    setSelectedMovie(movie);
+                    setShowTimes([]);
+                  }}
+                  label="Select movie"
+                >
+                  {movies.map((movie) => (
+                    <MenuItem key={movie.id} value={movie.id}>
+                      {movie.title}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
 
-    const handleUpdate = (newShowTimes) => {
-        setShowTimes(newShowTimes);
-    };
+            {/* Dates & Shows */}
+            {selectedMovie && (
+              <>
+                <TextField
+                  label="Start Date"
+                  type="date"
+                  fullWidth
+                  value={startDate || ""}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: minDate }}
+                  required
+                />
+                <TextField
+                  label="End Date"
+                  type="date"
+                  fullWidth
+                  value={endDate || ""}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: startDate }}
+                  required
+                />
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel>Shows per day</InputLabel>
+                  <Select
+                    value={showsPerDay || ""}
+                    onChange={(e) => setShowsPerDay(Number(e.target.value))}
+                    label="Shows per day"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {[1, 2, 3, 4].map((num) => (
+                      <MenuItem key={num} value={num}>
+                        {num}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-        try {
-            const response = await apiClient.post('/movie-assignments/create-assignment', {
-                theatreId: selectedTheatre.id, movieId: selectedMovie.id, numberOfShowsPerDay: showsPerDay,
-                showTimings: showTimes, startDate, endDate
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+                {/* Show Time Picker */}
+                {showsPerDay > 0 && (
+                  <CreateMovieShow
+                    showTimes={showTimes}
+                    setShowTimes={handleShowTimesUpdate}
+                    maxShows={showsPerDay}
+                  />
+                )}
 
-            setSelectedTheatre(null);
-            setSelectedMovie(null);
-            setStartDate(null);
-            setEndDate(null);
-            setShowTimes(null);
-
-        } catch (error) {
-
-        }
-    };
-
-    return (
-        <div className="container border border-dark rounded lg-light mt-4 p-4 w-50">
-            <h3 className="text-center fw-bold mb-4">Assign</h3>
-
-            <form onSubmit={handleSubmit}>
-                <div className="d-flex gap-4">
-                    <label className="form-label fw-bold p-2">Select theatre</label>
-                    <DropdownButton
-                        id="dropdown-theatre"
-                        title={selectedTheatre ? selectedTheatre.name : " -- Choose a theatre -- "}
-                        variant="light"
-                        className=" text-dark border border-dark rounded mb-4">
-                        {theatres.map((theatre) => (
-                            <Dropdown.Item
-                                key={theatre.id}
-                                onClick={() => { setSelectedTheatre(theatre); fetchMovies(); }}>
-                                {theatre.name}
-                            </Dropdown.Item>
+                {/* Showtimes Table */}
+                {showTimes.length > 0 && (
+                  <Paper variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>#</TableCell>
+                          <TableCell>Showtime</TableCell>
+                          <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {showTimes.map((time, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{time}</TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="Delete">
+                                <IconButton onClick={() => handleDeleteTime(index)} size="small">
+                                  <DeleteOutlineIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                    </DropdownButton>
-                </div>
+                      </TableBody>
+                    </Table>
+                  </Paper>
+                )}
+              </>
+            )}
 
-                {selectedTheatre &&
-                    <div className="">
-                        <div className="d-flex gap-2">
-                            <label className="form-label fw-bold p-2">Select movie</label>
-                            <DropdownButton
-                                id="dropdown-movie"
-                                title={selectedMovie ? selectedMovie.title : " -- Choose a movie -- "}
-                                variant="light"
-                                className="border border-dark rounded text-dark mb-4">
-                                {movies.map((movie) => (
-                                    <Dropdown.Item
-                                        key={movie.id}
-                                        onClick={() => { setSelectedMovie(movie); }}>
-                                        {movie.title}
-                                    </Dropdown.Item>
-                                ))}
-                            </DropdownButton>
-                        </div>
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={!selectedTheatre || !selectedMovie || !startDate || !endDate || showTimes.length === 0}
+            >
+              Add Movie Show
+            </Button>
 
-
-                    </div>
+            {/* Inline Alerts */}
+            {successAlert.show && (
+              <Alert
+                severity="success"
+                action={
+                  <IconButton size="small" onClick={() => setSuccessAlert({ show: false, msg: "" })}>
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
                 }
+              >
+                {successAlert.msg}
+              </Alert>
+            )}
 
-                {selectedMovie && <div className="d-flex gap-2 mb-4">
-                    <div>
-                        <div className="d-flex gap-2 mb-4">
-                            <label for="startDate" className="form-label fw-bold p-2">Select start date :</label>
-                            <input type="date" className="form-control" id="startDate" name="startDate" min={today}
-                                value={startDate} onChange={e => setStartDate(e.target.value)} required />
-                        </div>
-
-                        <div className="d-flex gap-2 mb-4">
-                            <label for="endDate" className="form-label fw-bold p-2">Select end date : </label>
-                            <input type="date" className="form-control" id="endDate" name="endDate" min={today}
-                                value={endDate} onChange={e => setEndDate(e.target.value)} required />
-                        </div>
-
-                        <div className="d-flex mb-4">
-                            <label className="fw-bold">Select number of shows per day : </label>
-                            <select
-                                id="showCount"
-                                value={showsPerDay}
-                                onChange={e => setShowsPerDay(e.target.value)}
-                                className="form-select text-center border border-dark">
-                                <option value=""> -- select shows per day -- </option>
-                                {[1, 2, 3, 4].map((num) => (
-                                    <option key={num} value={num}>{num}</option>
-                                )
-                                )}
-                            </select>
-                        </div>
-
-                        <CreateMovieShow showTimes={showTimes} setShowTimes={handleUpdate} />
-
-                        {showTimes && <div className="border border-dark rounded p-2">
-                            <p className="fw-bold text-center"> Shows : </p>
-
-                            {showTimes.map((showTime, index) => (
-                                <div key={index} className="text-center">
-                                    {showTime}
-                                </div>
-                            ))}
-
-                        </div>}
-
-
-
-                        {/* <div>
-                            <label className="form-label fw-bold p-2">Select showtime  </label>
-                            <input type="time" className="border border-dark rounded p-2" value={showTime}
-                                onChange={e => setShowTime(e.target.value)} required />
-                        </div> */}
-                    </div>
-                </div>}
-
-                {<button type="submit" className="btn btn-primary d-block mx-auto">Add movie show</button>}
-
-            </form>
-
-        </div>
-    );
+            {errorAlert.show && (
+              <Alert
+                severity="error"
+                action={
+                  <IconButton size="small" onClick={() => setErrorAlert({ show: false, msg: "" })}>
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+              >
+                {errorAlert.msg}
+              </Alert>
+            )}
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
+  );
 };
 
 export default AssignMovieToTheatre;

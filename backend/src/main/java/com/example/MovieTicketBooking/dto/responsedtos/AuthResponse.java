@@ -1,4 +1,4 @@
-package com.example.MovieTicketBooking.controller.exchanges.request;
+package com.example.MovieTicketBooking.dto.responsedtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginRequest {
-
-    private String email;
-    private String password;
+public class AuthResponse {
+    private final String message = "Success";
+    private String accessToken;
 }

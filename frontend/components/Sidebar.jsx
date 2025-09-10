@@ -1,91 +1,235 @@
-import { Drawer, List, ListItem, ListItemText, Toolbar } from '@mui/material';
-import { useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate, matchPath } from 'react-router-dom';
+import {
+  Drawer,
+  Toolbar,
+  List,
+  ListItemButton,
+  ListItemText,
+  Collapse,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Box,
+  Divider,
+} from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
-const drawerWidth = 160;
+const drawerWidth = 240;
 
-function Sidebar({ setIsLoggedIn }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [show, setShow] = useState(false);
-    const role = localStorage.getItem('role');
+export default function Sidebar({ setIsLoggedIn }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const role = localStorage.getItem('role');
 
-    const handleOpen = () => setShow(true);
-    const handleClose = () => setShow(false);
+  // Menu items
+  const adminItems = [
+    { id: 'sec-home', label: 'Home', path: '/app/movies' },
+    {
+      id: 'sec-theatres',
+      label: 'Theatres',
+      children: [
+        { id: 'theatres-view', label: 'View Theatres', path: '/app/theatres' },
+        { id: 'theatres-add', label: 'Add Theatre', path: '/app/theatres/new' },
+        { id: 'movies-assign', label: 'Assign Movie', path: '/app/theatres/assign-movie' },
+      ],
+    },
+    {
+      id: 'sec-movies',
+      label: 'Movies',
+      children: [
+        // { id: 'movies-see', label: 'See Movies', path: '/app/movies' },
+        { id: 'movies-add', label: 'Add Movie', path: '/app/movies/new' },
+        { id: 'movies-now', label: 'Now Showing', path: '/app/movies' },
+        { id: 'movies-soon', label: 'Coming Soon', path: '/app/movies/upcoming' },
+      ],
+    },
+  ];
 
-    const adminItems = [
-        { label: 'Theatres', path: '/app/theatres' },
-        { label: 'Movies', path: '/app/movies' },
-        { label: 'Logout', action: 'logout' },
-    ];
+  const userItems = [
+    { id: 'sec-home', label: 'Home', path: '/app/movies' },
+    {
 
-    const userItems = [
-        { label: 'Movies', path: '/app/movies' },
-        { label: 'MyBookings', path: '/app/tickets' },
-        { label: 'Logout', action: 'logout' },
-    ];
+      id: 'sec-user-movies',
+      label: 'Movies',
+      children: [
+        { id: 'movies-now', label: 'Now Showing', path: '/app/movies' },
+        { id: 'movies-soon', label: 'Coming Soon', path: '/app/movies/upcoming' },
+      ],
+    },
+    {
+      id: 'sec-bookings',
+      label: 'My Bookings',
+      children: [
+        { id: 'tickets', label: 'Tickets', path: '/app/tickets/upcoming' },
+        { id: 'history', label: 'History', path: '/app/tickets/history' },
+        // { id: 'tickets', label: 'Tickets', path: '/app/tickets' },
+        // { id: 'history', label: 'History', path: '/app/tickets/history' },
+      ],
+    },
+  ];
 
-    const handleLogout = () => {
-        setIsLoggedIn(false);
-        localStorage.removeItem('token');
-        navigate('/');
+  const items = useMemo(() => (role === 'ADMIN' ? adminItems : userItems), [role]);
+  console.log(items);
+  const [openMap, setOpenMap] = useState({});
+
+  const isActiveExact = useCallback(
+    (path) => !!path && !!matchPath({ path, end: true }, location.pathname),
+    [location.pathname]
+  );
+
+  const isSectionActive = useCallback(
+    (node) =>
+      !!node?.children?.some((c) => (c.path ? isActiveExact(c.path) : false)) ||
+      (node.path ? isActiveExact(node.path) : false),
+    [isActiveExact]
+  );
+
+
+
+  useEffect(() => {
+    const nextOpen = {};
+    const walk = (nodes) => {
+      for (const n of nodes) {
+        if (n.children && isSectionActive(n)) nextOpen[n.id] = true;
+        if (n.children) walk(n.children);
+      }
     };
+    walk(items);
+    setOpenMap((prev) => ({ ...prev, ...nextOpen }));
+  }, [items, isSectionActive]);
 
-    const handleItemClick = (item) => {
-        if (item.action === 'logout') {
-            handleOpen();
-        } else if (item.path) {
-            navigate(item.path);
-        }
-    };
+  const toggleSection = (id) => setOpenMap((m) => ({ ...m, [id]: !m[id] }));
 
-    const items = role === 'ADMIN' ? adminItems : userItems;
+  const handleItemClick = (item) => {
+    if (item.action === 'logout') setLogoutOpen(true);
+    else if (item.path) navigate(item.path);
+  };
 
-    return (
-        <><Drawer
-            variant="permanent"
-            sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                [`& .MuiDrawer-paper`]: {
-                    width: drawerWidth,
-                    boxSizing: 'border-box',
-                    top: '96px',
-                },
-            }}
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    setLogoutOpen(false);
+    navigate('/');
+  };
+
+  const renderNode = useCallback(
+    (node, depth = 0) => {
+      const paddingLeft = 3 + depth * 3;
+
+      if (node.children) {
+        const open = !!openMap[node.id];
+        const sectionActive = isSectionActive(node);
+
+        return (
+          <div key={node.id}>
+            <ListItemButton
+              onClick={() => toggleSection(node.id)}
+              sx={{
+                pl: paddingLeft,
+                borderRadius: 1,
+                mb: 0.5,
+                backgroundColor: sectionActive ? 'primary.light' : 'transparent',
+                color: sectionActive ? 'white' : 'text.primary',
+                fontWeight: sectionActive ? 600 : 400,
+                '&:hover': { backgroundColor: sectionActive ? 'primary.main' : 'primary.lighter' },
+                '& .MuiListItemText-root': { margin: 0 }, 
+              }}
+            >
+              <ListItemText primary={node.label} />
+              {open ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                {node.children.map((child) => renderNode(child, depth + 1))}
+              </List>
+            </Collapse>
+          </div>
+        );
+      }
+
+      const active = isActiveExact(node.path);
+
+      return (
+        <ListItemButton
+          key={node.id}
+          onClick={() => handleItemClick(node)}
+          selected={active}
+          sx={{
+            pl: paddingLeft, // same formula keeps alignment with items with children
+            borderRadius: 1,
+            // fontWeight:bold,
+            mb: 0.5,
+            backgroundColor: active ? 'primary.light' : 'transparent',
+            color: active ? 'primary.main' : 'text.primary',
+            fontWeight: active ? 600 : 400,
+            '&:hover': { backgroundColor: 'primary.lighter' },
+            '& .MuiListItemText-root': { margin: 0 }, // fixes top-level leaf alignment
+          }}
         >
-            <Toolbar />
-            <List>
+          <ListItemText primary={node.label} />
+        </ListItemButton>
+      );
+    },
+    [openMap, isActiveExact, isSectionActive]
+  );
 
-                {items.map((item) => {
-                    const isActive = item.path && location.pathname.startsWith(item.path);
+  return (
+    <>
+      <Drawer
+        variant="permanent"
+        anchor="left"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            top: '90px', // match AppBar height
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid #ddd',
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
+          <List>
+            {items.map((item) => renderNode(item))}
+          </List>
+        </Box>
 
-                    return (<ListItem
-                        button
-                        key={item.label}
-                        onClick={() => handleItemClick(item)}
-                        sx={{
-                            backgroundColor: isActive ? '#e3f2fd' : 'transparent',
-                            color: isActive ? '#1976d2' : 'inherit',
-                            fontWeight: isActive ? 'bold' : 'normal',
-                            borderLeft: isActive ? '4px solid #1976d2' : '4px solid transparent',
-                        }}
-                    >
-                        <ListItemText primary={item.label} />
-                    </ListItem>);
-                })}
+        <Divider />
+        <Box sx={{ p: 1 }}>
+          <Button
+            variant="contained"
+            color="error"
+            fullWidth
+            onClick={handleLogout}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Logout
+          </Button>
+        </Box>
+      </Drawer>
 
-            </List>
-        </Drawer>
-            <Modal show={show} onHide={() => setShow(false)}>
-                <Modal.Body className='fw-bold fs-5 text-center p-4'>Are you sure you want to logout?</Modal.Body>
-                <Modal.Footer className='justify-content-center'>
-                    <Button variant="secondary" onClick={handleClose}>Cancel</Button>
-                    <Button variant="primary" onClick={handleLogout}>Logout</Button>
-                </Modal.Footer>
-            </Modal></>
-    );
+      <Dialog open={logoutOpen} onClose={() => setLogoutOpen(false)}>
+        <DialogTitle>Log out</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Are you sure you want to logout?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLogoutOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleLogout}>
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 }
-
-export default Sidebar;

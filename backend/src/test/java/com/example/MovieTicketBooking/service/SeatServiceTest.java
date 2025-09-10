@@ -69,7 +69,7 @@ public class SeatServiceTest
         Theatre theatre = Theatre.builder().id(1L).name("Aruna").location("Davanagere").build();
 
         when(theatreService.getTheatreById(1L)).thenReturn(theatre);
-        when(seatRepository.findByTheatre(theatre)).thenReturn(seats);
+        when(seatRepository.findAllByTheatre(theatre)).thenReturn(seats);
 
         List<Seat> result = seatService.getAllSeatsByTheatreId(1L);
 
@@ -77,6 +77,6 @@ public class SeatServiceTest
         assertEquals(2, result.size());
         assertEquals(seats, result);
         verify(theatreService, times(1)).getTheatreById(1L);
-        verify(seatRepository, times(1)).findByTheatre(theatre);
+        verify(seatRepository, times(1)).findAllByTheatre(theatre);
     }
 }

@@ -1,8 +1,12 @@
 package com.example.MovieTicketBooking.config.security;
 
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.MovieTicketBooking.service.JWTService;
+import com.example.MovieTicketBooking.service.UserService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,23 +14,18 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.MovieTicketBooking.service.JWTService;
-import com.example.MovieTicketBooking.service.UserService;
-
-import org.springframework.lang.NonNull;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    JWTService jwtService;
 
-    @Autowired
-    UserService userService;
+    private final JWTService jwtService;
+    private final UserService userService;
+
+    public JWTAuthenticationFilter(JWTService jwtService, UserService userService){
+        this.jwtService = jwtService;
+        this.userService = userService;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
