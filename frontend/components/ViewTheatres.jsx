@@ -14,7 +14,7 @@ export default function ViewTheatres() {
 
   const getTheatres = async () => {
     try {
-      const response = await apiClient.get("/theatres/get-all-theatres", {
+      const response = await apiClient.get("/theatres", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -93,7 +93,7 @@ const Bookings = () => {
     setError(null);
     try {
       const response = await apiClient.get(
-        `/movieshows/movies/${movieId}/date/${date}`,
+        `/movies/${movieId}/shows/date/${date}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMovieShows(response.data);

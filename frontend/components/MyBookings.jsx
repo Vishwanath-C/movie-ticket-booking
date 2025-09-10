@@ -22,7 +22,7 @@ const MyBookings = () => {
 
   const handleShowTickets = async () => {
     try {
-      const response = await apiClient.get("/tickets/get-tickets", {
+      const response = await apiClient.get("/tickets", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

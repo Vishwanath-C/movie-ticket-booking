@@ -110,8 +110,7 @@ const ShowSeatLayout = () => {
 
     const handleBookSeats = async () => {
         try {
-            console.log("MOVIESHOW ID : ", movieShow.id, selectedSeats);
-            const response = await apiClient.post('/tickets/create-ticket',
+            const response = await apiClient.post('/tickets',
                 {
                     showSeatRequestDtos: selectedSeats, movieShowId: movieShow.id,
                     totalPrice, email: user.sub

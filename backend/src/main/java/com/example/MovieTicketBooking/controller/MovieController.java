@@ -5,7 +5,7 @@ import com.example.MovieTicketBooking.dto.responsedtos.MovieResponseDto;
 import com.example.MovieTicketBooking.model.Movie;
 import com.example.MovieTicketBooking.service.MovieService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,34 +15,35 @@ import java.util.List;
 
 //@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5176"} )
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/movies")
-public class MovieController {
-    @Autowired
-    MovieService movieService;
+public class MovieController
+{
+    private final MovieService movieService;
 
-    @PostMapping("/create-movie")
+    @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Movie> createMovie(@Valid @RequestBody MovieRequestDto movieRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(movieService.createMovie(movieRequestDto));
     }
 
-    @GetMapping("/all-movies")
+    @GetMapping("")
     public ResponseEntity<List<MovieResponseDto>> getAllMovies() {
         return ResponseEntity.ok(movieService.getAllMovies());
     }
 
-    @GetMapping("/movies-with-shows")
-    public ResponseEntity<List<MovieResponseDto>> getMoviesWithShows(){
+    @GetMapping("/with-shows")
+    public ResponseEntity<List<MovieResponseDto>> getMoviesWithShows() {
         return ResponseEntity.ok(movieService.getMoviesWithShows());
     }
 
-    @GetMapping("/upcoming-movies")
-    public ResponseEntity<List<MovieResponseDto>> getUpcomingMovies(){
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<MovieResponseDto>> getUpcomingMovies() {
         return ResponseEntity.ok(movieService.getUpcomingMovies());
     }
 
     @GetMapping("/now-running")
-    public ResponseEntity<List<MovieResponseDto>> getCurrentlyRunningMovies(){
+    public ResponseEntity<List<MovieResponseDto>> getCurrentlyRunningMovies() {
         return ResponseEntity.ok(movieService.getCurrentShowingMovies());
     }
 

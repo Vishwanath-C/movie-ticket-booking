@@ -17,31 +17,20 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/seats")
-public class SeatController {
-
-
+public class SeatController
+{
     private final SeatService seatService;
-
-
     private final TheatreService theatreService;
 
-    @GetMapping("/theatre/{theatre-id}")
+    @GetMapping("/theatre/{theatre-id}/seats")
     public List<Seat> getSeatsByTheatre(@PathVariable Long theatreId) {
         return seatService.getAllSeatsByTheatreId(theatreId);
     }
 
-//    @PostMapping("/generate_seats/theatres/{theatreId}")
-//    public ResponseEntity<Void> createSeat(@RequestBody List<SeatTypeRequest> seatTypeRequests,
-//            @PathVariable Long theatreId) {
-//        Theatre theatre = theatreService.getTheatreById(theatreId);
-//        seatService.generateSeats(theatre, seatTypeRequests);
-//        return ResponseEntity.ok().build();
-//    }
-
-    @GetMapping("/get-seat-types")
+    @GetMapping("/types")
     public ResponseEntity<SeatType[]> getSeatTypes() {
         return ResponseEntity.ok().body(SeatType.values());
     }
-    
+
 
 }

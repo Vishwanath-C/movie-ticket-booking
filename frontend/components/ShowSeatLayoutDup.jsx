@@ -57,7 +57,7 @@ const ShowSeatLayoutModern = () => {
   const handleBookSeats = async () => {
     const selectedSeatIds = selectedSeats.map(seat => seat.id);
     try {
-      const response = await apiClient.post('/tickets/create-ticket',
+      const response = await apiClient.post('/tickets',
         { showSeatIds: selectedSeatIds, movieShowId: movieShow.id, totalPrice, email: user.sub },
         { headers: { Authorization: `Bearer ${token}` } }
       );

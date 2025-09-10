@@ -17,7 +17,7 @@ const GenerateSeatLayout = () => {
     const fetchTheatres = async () => {
         try {
             console.log("In fetch theatres");
-            const response = await apiClient.get("/theatres/get-all-theatres", {
+            const response = await apiClient.get("/theatres", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -32,7 +32,7 @@ const GenerateSeatLayout = () => {
     const fetchSeatTypes = async () => {
         try {
             console.log("In seat types");
-            const response = await apiClient.get('/seats/get-seat-types', {
+            const response = await apiClient.get('/seats/types', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

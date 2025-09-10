@@ -55,7 +55,7 @@ const AddTheatreAndSeats = () => {
   useEffect(() => {
     const fetchSeatTypes = async () => {
       try {
-        const response = await apiClient.get("/seats/get-seat-types", {
+        const response = await apiClient.get("/seats/types", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setSeatTypes(response.data);
@@ -139,7 +139,7 @@ const AddTheatreAndSeats = () => {
     const requestBody = { name, location, seatTypeRequests: seatConfigs };
 
     try {
-      await apiClient.post("/theatres/create-theatre", requestBody, {
+      await apiClient.post("/theatres", requestBody, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTheatreAddedAlert({ show: true, msg: "Theatre successfully added." });

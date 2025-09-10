@@ -23,7 +23,7 @@ const UpcomingBookings = () => {
 
     const handleShowTickets = async () => {
         try {
-            const response = await apiClient.get("/tickets/upcoming-tickets", {
+            const response = await apiClient.get("/tickets/upcoming", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

@@ -5,7 +5,7 @@ import com.example.MovieTicketBooking.dto.requestdtos.RegisterRequest;
 import com.example.MovieTicketBooking.dto.responsedtos.AuthResponse;
 import com.example.MovieTicketBooking.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 //@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5176"}  )
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
-public class AuthController {
-
-    @Autowired
-    AuthService authService;
+public class AuthController
+{
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {

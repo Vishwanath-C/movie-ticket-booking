@@ -51,7 +51,7 @@ const AssignMovieToTheatre = () => {
 
   const fetchTheatres = async () => {
     try {
-      const response = await apiClient.get("/theatres/get-all-theatres", {
+      const response = await apiClient.get("/theatres", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTheatres(response.data || []);
@@ -62,7 +62,7 @@ const AssignMovieToTheatre = () => {
 
   const fetchMovies = async () => {
     try {
-      const response = await apiClient.get("/movies/all-movies", {
+      const response = await apiClient.get("/movies", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMovies(response.data || []);
@@ -88,7 +88,7 @@ const AssignMovieToTheatre = () => {
 
     try {
       await apiClient.post(
-        "/movie-schedules/create-schedule",
+        "/schedules",
         {
           theatreId: selectedTheatre.id,
           movieId: selectedMovie.id,

@@ -66,7 +66,7 @@ export default function AddMovieForm() {
 
     try {
       await apiClient.post(
-        "/movies/create-movie",
+        "/movies",
         {
           title: movieTitle,
           description: movieDescription,

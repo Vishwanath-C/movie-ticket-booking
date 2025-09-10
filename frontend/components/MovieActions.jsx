@@ -14,7 +14,7 @@ const MovieActions = ({ nowrunning }) => {
     //     "/movies/upcoming-movies";
 
     let url = nowrunning ? "/movies/now-running" :
-        "/movies/upcoming-movies";
+        "/movies/upcoming";
 
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(false);

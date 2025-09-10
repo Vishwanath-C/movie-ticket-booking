@@ -7,7 +7,7 @@ import com.example.MovieTicketBooking.model.User;
 import com.example.MovieTicketBooking.repository.UserRepository;
 import com.example.MovieTicketBooking.service.TicketService;
 import com.example.MovieTicketBooking.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,25 +18,21 @@ import java.util.List;
 
 //@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5176"} )
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/tickets")
-public class TicketController {
-    
-    @Autowired
-    TicketService ticketService;
+public class TicketController
+{
+    private final TicketService ticketService;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    UserService userService;
-
-    @PostMapping("/create-ticket")
+    @PostMapping("")
     public ResponseEntity<TicketResponseDto> createTicket(@RequestBody TicketRequestDto ticketRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.bookTicket(ticketRequestDto));
     }
 
-    @GetMapping("/get-tickets")
-    public ResponseEntity<List<TicketResponseDto>> getTicketsByUser(@AuthenticationPrincipal Jwt jwt){
+    @GetMapping("")
+    public ResponseEntity<List<TicketResponseDto>> getTicketsByUser(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getSubject();
         Long userId = userRepository.findByEmail(email)
                 .map(User::getId)
@@ -46,8 +42,8 @@ public class TicketController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
     }
 
-    @GetMapping("upcoming-tickets")
-    public ResponseEntity<List<TicketResponseDto>> getUpcomingTicketsByUser(@AuthenticationPrincipal Jwt jwt){
+    @GetMapping("upcoming")
+    public ResponseEntity<List<TicketResponseDto>> getUpcomingTicketsByUser(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getSubject();
 
         Long userId = userRepository.findByEmail(email)
@@ -59,8 +55,8 @@ public class TicketController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
     }
 
-    @GetMapping("finished-tickets")
-    public ResponseEntity<List<TicketResponseDto>> getFinishedTicketsByUser(@AuthenticationPrincipal Jwt jwt){
+    @GetMapping("finished")
+    public ResponseEntity<List<TicketResponseDto>> getFinishedTicketsByUser(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getSubject();
         Long userId = userRepository.findByEmail(email)
                 .map(User::getId)
@@ -69,5 +65,5 @@ public class TicketController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
     }
-    
+
 }

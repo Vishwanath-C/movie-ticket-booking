@@ -26,7 +26,7 @@ const FinishedBookings = () => {
 
     const handleShowTickets = async () => {
         try {
-            const response = await apiClient.get("/tickets/finished-tickets", {
+            const response = await apiClient.get("/tickets/finished", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

@@ -19,7 +19,7 @@ const AddTheatre = () => {
 
     try {
       const response = await apiClient.post(
-        "/theatres/create-theatre",
+        "/theatres",
         { name, location },
         { headers: { Authorization: `Bearer ${token}` } }
       );
