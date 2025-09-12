@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 @ToString(onlyExplicitlyIncluded = true)
 public class Seat
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include

@@ -1,28 +1,28 @@
-import { useEffect, useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
+  Alert,
   Box,
-  Container,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Button,
-  Paper,
-  Stack,
+  Container,
   Divider,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Stack,
   Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableRow,
-  TableCell,
-  TableBody,
-  IconButton,
+  TextField,
   Tooltip,
-  Alert,
   Typography,
 } from "@mui/material";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import CloseIcon from "@mui/icons-material/Close";
+import { useEffect, useState } from "react";
 import apiClient from "../src/api";
 import CreateMovieShow from "./CreateMovieShow";
 
@@ -121,7 +121,7 @@ const AssignMovieToTheatre = () => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-    <Paper elevation={3} sx={{ p: 4, borderRadius: 3, backgroundColor: "#f9fafb" }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 3, backgroundColor: "#f9fafb" }}>
         <Box>
           <Typography variant="h5" align="center" gutterBottom fontWeight="bold">
             Assign movie
@@ -146,7 +146,7 @@ const AssignMovieToTheatre = () => {
                 }}
                 fullWidth
                 label="Select theatre"
-                
+
               >
                 {theatres.map((theatre) => (
                   <MenuItem key={theatre.id} value={theatre.id}>

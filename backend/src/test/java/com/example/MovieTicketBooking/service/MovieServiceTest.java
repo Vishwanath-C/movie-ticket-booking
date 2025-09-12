@@ -2,9 +2,11 @@ package com.example.MovieTicketBooking.service;
 
 import com.example.MovieTicketBooking.dto.requestdtos.MovieRequestDto;
 import com.example.MovieTicketBooking.dto.responsedtos.MovieResponseDto;
+import com.example.MovieTicketBooking.exception.ResourceNotFoundException;
 import com.example.MovieTicketBooking.mapper.MovieDtoMapper;
 import com.example.MovieTicketBooking.mapper.MovieResponseDtoMapper;
 import com.example.MovieTicketBooking.model.Movie;
+import com.example.MovieTicketBooking.model.MovieSchedule;
 import com.example.MovieTicketBooking.repository.MovieRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,16 +14,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class MovieServiceTest
-{
+class MovieServiceTest {
+
     @Mock
     private MovieRepository movieRepository;
 
@@ -32,78 +33,120 @@ public class MovieServiceTest
     private MovieResponseDtoMapper movieResponseDtoMapper;
 
     @InjectMocks
-    private  MovieService movieService;
+    private MovieService movieService;
 
     private Movie movie;
-    private MovieRequestDto movieRequestDto;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        movie = Movie.builder().id(1L).title("KGF").description("Action").duration(100).build();
-
-       movieRequestDto = MovieRequestDto.builder().title("KGF").description("Action").duration(150).build();
+        movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Test Movie");
     }
 
     @Test
-    void testCreateMovie(){
-        when(movieDtoMapper.dtoToMovie(movieRequestDto)).thenReturn(movie);
+    void createMovie_ShouldSaveMovie_WhenNotExists() {
+        MovieRequestDto requestDto = new MovieRequestDto();
+        requestDto.setTitle("New Movie");
+
+        when(movieRepository.findByTitle("New Movie")).thenReturn(Optional.empty());
+        when(movieDtoMapper.dtoToMovie(requestDto)).thenReturn(movie);
         when(movieRepository.save(movie)).thenReturn(movie);
 
-        Movie result = movieService.createMovie(movieRequestDto);
+        Movie saved = movieService.createMovie(requestDto);
 
-        assertNotNull(result);
-        assertEquals("KGF", result.getTitle());
+        assertNotNull(saved);
+        assertEquals("Test Movie", saved.getTitle());
         verify(movieRepository, times(1)).save(movie);
     }
 
     @Test
-    void testGetMovieById(){
+    void createMovie_ShouldThrowException_WhenMovieAlreadyExists() {
+        MovieRequestDto requestDto = new MovieRequestDto();
+        requestDto.setTitle("Test Movie");
+
+        when(movieRepository.findByTitle("Test Movie")).thenReturn(Optional.of(movie));
+
+        assertThrows(IllegalArgumentException.class, () -> movieService.createMovie(requestDto));
+        verify(movieRepository, never()).save(any(Movie.class));
+    }
+
+    @Test
+    void getMovieById_ShouldReturnMovie_WhenExists() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
 
         Movie result = movieService.getMovieById(1L);
 
         assertNotNull(result);
-        assertEquals("KGF", result.getTitle());
-        verify(movieRepository, times(1)).findById(1L);
+        assertEquals("Test Movie", result.getTitle());
     }
 
     @Test
-    void testGetAllMovies(){
-        List<Movie> movies = new ArrayList<>();
-        Movie movieKGF = Movie.builder().id(1L).title("KGF").description("Action").duration(150).build();
-        Movie movieSuFromSo = Movie.builder().id(2L).title("Su from so").description("Comedy").duration(120).build();
+    void getMovieById_ShouldThrowException_WhenNotExists() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.empty());
 
-        movies.add(movieKGF);
-        movies.add(movieSuFromSo);
+        assertThrows(ResourceNotFoundException.class, () -> movieService.getMovieById(1L));
+    }
 
-        when(movieRepository.findAll()).thenReturn(movies);
+    @Test
+    void getAllMovies_ShouldReturnDtos() {
+        MovieResponseDto dto = new MovieResponseDto();
+        dto.setId(1L);
+        dto.setTitle("Test Movie");
 
-        MovieResponseDto dtoKFG = MovieResponseDto.builder().id(1L).title("KGF").description("Action").durationMinutes(150).build();
-        MovieResponseDto dtoSuFromSo = MovieResponseDto.builder().id(2L).title("Su from so").description("Comedy").durationMinutes(120).build();
-
-        when(movieResponseDtoMapper.movieToDto(movieKGF)).thenReturn(dtoKFG);
-        when(movieResponseDtoMapper.movieToDto(movieSuFromSo)).thenReturn(dtoSuFromSo);
+        when(movieRepository.findAll()).thenReturn(List.of(movie));
+        when(movieResponseDtoMapper.movieToDto(movie)).thenReturn(dto);
 
         List<MovieResponseDto> result = movieService.getAllMovies();
 
-        assertEquals(2, result.size());
-        assertEquals("KGF", result.get(0).getTitle());
-        assertEquals("Su from so", result.get(1).getTitle());
-        verify(movieRepository, times(1)).findAll();
+        assertEquals(1, result.size());
+        assertEquals("Test Movie", result.get(0).getTitle());
     }
 
     @Test
-    void testGetByTitle(){
-        when(movieRepository.findByTitle("KGF")).thenReturn(Optional.ofNullable(movie));
+    void getMoviesWithShows_ShouldReturnMoviesWithActiveSchedules() {
+        LocalDate today = LocalDate.now();
+        MovieSchedule schedule = new MovieSchedule();
+        schedule.setStartDate(today.minusDays(1));
+        schedule.setEndDate(today.plusDays(1));
 
-        Movie result = movieService.getByTitle("KGF");
+        movie.setMovieSchedules(List.of(schedule));
 
-        assertNotNull(result);
-        assertEquals("KGF", result.getTitle());
-        verify(movieRepository, times(1)).findByTitle("KGF");
+        MovieResponseDto dto = new MovieResponseDto();
+        dto.setId(1L);
+        dto.setTitle("Test Movie");
+
+        when(movieRepository.findAll()).thenReturn(List.of(movie));
+        when(movieResponseDtoMapper.movieToDto(movie)).thenReturn(dto);
+
+        List<MovieResponseDto> result = movieService.getMoviesWithShows();
+
+        assertEquals(1, result.size());
     }
 
+    @Test
+    void getByTitle_ShouldReturnMovie_WhenExists() {
+        when(movieRepository.findByTitle("Test Movie")).thenReturn(Optional.of(movie));
 
+        Movie result = movieService.getByTitle("Test Movie");
+
+        assertEquals("Test Movie", result.getTitle());
+    }
+
+    @Test
+    void getByTitle_ShouldThrowException_WhenNotExists() {
+        when(movieRepository.findByTitle("Unknown")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> movieService.getByTitle("Unknown"));
+    }
+
+    @Test
+    void deleteMovie_ShouldDelete_WhenExists() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
+
+        movieService.deleteMovie(1L);
+
+        verify(movieRepository, times(1)).delete(movie);
+    }
 }

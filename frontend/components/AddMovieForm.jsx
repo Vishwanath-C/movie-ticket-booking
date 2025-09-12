@@ -1,16 +1,32 @@
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Alert,
-  IconButton,
-} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 import apiClient from "../src/api";
+
+function CustomAlert({ severity, msg, onClose }) {
+  return (
+    <Alert
+      severity={severity}
+      sx={{ mb: 2 }}
+      action={
+        <IconButton size="small" color="inherit" onClick={onClose}>
+          <CloseIcon fontSize="inherit" />
+        </IconButton>
+      }
+    >
+      {msg}
+    </Alert>
+  );
+}
 
 export default function AddMovieForm() {
   const role = localStorage.getItem("role");
@@ -22,22 +38,16 @@ export default function AddMovieForm() {
 
   const [successAlert, setSuccessAlert] = useState({ show: false, msg: "" });
   const [duplicateAlert, setDuplicateAlert] = useState({ show: false, msg: "" });
+  const [errors, setErrors] = useState({ movieTitle: "", movieDescription: "", durationMinutes: "" });
+  const [loading, setLoading] = useState(false);
 
-  const textareaRef = useRef(null);
-
-  // Auto-expand textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [movieDescription]);
-
-  const [errors, setErrors] = useState({
-    movieTitle: "",
-    movieDescription: "",
-    durationMinutes: "",
-  });
+  if (role !== "ADMIN") {
+    return (
+      <Alert severity="error" sx={{ mt: 4 }}>
+        You are not authorized to add movies.
+      </Alert>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,23 +65,20 @@ export default function AddMovieForm() {
       valid = false;
     }
 
-    if (!durationMinutes || durationMinutes <= 0) {
+    const duration = parseInt(durationMinutes, 10);
+    if (!duration || duration <= 0) {
       newErrors.durationMinutes = "Duration must be greater than 0.";
       valid = false;
     }
 
     setErrors(newErrors);
-
     if (!valid) return;
 
+    setLoading(true);
     try {
       await apiClient.post(
         "/movies",
-        {
-          title: movieTitle,
-          description: movieDescription,
-          duration: parseInt(durationMinutes, 10),
-        },
+        { title: movieTitle, description: movieDescription, duration },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -82,26 +89,20 @@ export default function AddMovieForm() {
       setMovieDescription("");
       setDurationMinutes("");
       setErrors({ movieTitle: "", movieDescription: "", durationMinutes: "" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setDuplicateAlert({
         show: true,
         msg: `Movie with name "${movieTitle}" already exists.`,
       });
       setTimeout(() => setDuplicateAlert({ show: false, msg: "" }), 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
-
-  if (role !== "ADMIN") {
-    return (
-      <Alert severity="error" sx={{ mt: 4 }}>
-        You are not authorized to add movies.
-      </Alert>
-    );
-  }
-
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb:4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 3, backgroundColor: "#f9fafb" }}>
         <Box sx={{ mb: 3, textAlign: "center" }}>
           <Typography
@@ -118,41 +119,20 @@ export default function AddMovieForm() {
           </Typography>
         </Box>
 
-
         {successAlert.show && (
-          <Alert
+          <CustomAlert
             severity="success"
-            sx={{ mb: 2 }}
-            action={
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={() => setSuccessAlert({ show: false, msg: "" })}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {successAlert.msg}
-          </Alert>
+            msg={successAlert.msg}
+            onClose={() => setSuccessAlert({ show: false, msg: "" })}
+          />
         )}
 
         {duplicateAlert.show && (
-          <Alert
+          <CustomAlert
             severity="warning"
-            sx={{ mb: 2 }}
-            action={
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={() => setDuplicateAlert({ show: false, msg: "" })}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {duplicateAlert.msg}
-          </Alert>
+            msg={duplicateAlert.msg}
+            onClose={() => setDuplicateAlert({ show: false, msg: "" })}
+          />
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
@@ -163,7 +143,7 @@ export default function AddMovieForm() {
             value={movieTitle}
             onChange={(e) => setMovieTitle(e.target.value)}
             error={!!errors.movieTitle}
-            helperText={errors.movieTitle || " "} // use space to reserve layout
+            helperText={errors.movieTitle || " "}
           />
 
           <TextField
@@ -171,8 +151,8 @@ export default function AddMovieForm() {
             fullWidth
             margin="normal"
             multiline
-            rows={1}
-            inputRef={textareaRef}
+            minRows={3}
+            maxRows={6}
             value={movieDescription}
             onChange={(e) => setMovieDescription(e.target.value)}
             error={!!errors.movieDescription}
@@ -191,18 +171,23 @@ export default function AddMovieForm() {
             helperText={errors.durationMinutes || " "}
           />
 
-
-
           <Box sx={{ textAlign: "center" }}>
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              sx={{ mt: 3, borderRadius: 1.5 }}
+              sx={{
+                mt: 3,
+                borderRadius: 2,
+                px: 4,
+                fontWeight: "bold",
+                transition: "0.3s",
+                '&:hover': { transform: "scale(1.03)" },
+              }}
+              disabled={loading}
             >
-              Add Movie
+              {loading ? "Adding..." : "Add Movie"}
             </Button>
-
           </Box>
         </Box>
       </Paper>

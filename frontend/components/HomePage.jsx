@@ -8,7 +8,19 @@ const HomePage = ({ isLoggedIn }) => {
   const handleLoginClick = () => navigate("/login");
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 5, textAlign: "center" }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        mt: 5,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "80vh",
+        textAlign: "center"
+      }}
+    >
+
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         🎬 Welcome to Movie Ticket Booking
       </Typography>
@@ -20,6 +32,7 @@ const HomePage = ({ isLoggedIn }) => {
             color="primary"
             size="large"
             onClick={handleRegisterClick}
+            aria-label="Register for a new account"
           >
             Register
           </Button>
@@ -32,12 +45,6 @@ const HomePage = ({ isLoggedIn }) => {
             Login
           </Button>
         </Box>
-      )}
-
-      {isLoggedIn && (
-        <Typography variant="h6" sx={{ mt: 4 }}>
-          You are logged in. Navigate to the dashboard to manage movies and bookings.
-        </Typography>
       )}
     </Container>
   );

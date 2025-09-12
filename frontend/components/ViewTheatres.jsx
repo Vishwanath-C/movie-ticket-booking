@@ -3,7 +3,7 @@ import apiClient from "../src/api";
 import TheatreCard from "./TheatreCard";
 
 // MUI imports
-import { Container, Typography, Grid, CircularProgress, Alert, Box } from "@mui/material";
+import { Container, Typography, Grid, CircularProgress, Alert, Box, Button } from "@mui/material";
 
 export default function ViewTheatres() {
   const [theatres, setTheatres] = useState([]);
@@ -13,6 +13,8 @@ export default function ViewTheatres() {
   const token = localStorage.getItem("token");
 
   const getTheatres = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await apiClient.get("/theatres", {
         headers: {
@@ -20,7 +22,7 @@ export default function ViewTheatres() {
         },
       });
       setTheatres(response.data);
-      console.log(theatres);
+      console.log("Fetched theatres:", response.data);
     } catch (err) {
       console.error("Failed to fetch theatres:", err);
       setError("Could not load theatres. Please try again later.");
@@ -34,7 +36,8 @@ export default function ViewTheatres() {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 6, textAlign: "center" }}>
+    <Container maxWidth="lg" sx={{ mt: 6, mb:4, textAlign: "center" }}>
+      {/* Header */}
       <Box
         sx={{
           display: "inline-block",
@@ -45,7 +48,6 @@ export default function ViewTheatres() {
           borderRadius: 2,
           boxShadow: 3,
           mb: 4,
-          width:"100%"
         }}
       >
         <Typography variant="h6" fontWeight="bold" align="center">
@@ -53,28 +55,45 @@ export default function ViewTheatres() {
         </Typography>
       </Box>
 
+      {/* Loading */}
       {loading && (
         <Grid container justifyContent="center" sx={{ mt: 4 }}>
           <CircularProgress />
         </Grid>
       )}
 
+      {/* Error with Retry */}
       {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
+        <Alert
+          severity="error"
+          sx={{ mt: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={getTheatres}>
+              Retry
+            </Button>
+          }
+        >
           {error}
         </Alert>
       )}
 
+      {/* Theatres Grid */}
       {!loading && !error && (
-
-        <Grid container justifyContent="center" spacing={3}>
-          {theatres.map((theatre) => (
-            <Grid item key={theatre.id}>
-              <TheatreCard theatre={theatre} />
+        <>
+          {theatres.length === 0 ? (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              No theatres available.
+            </Alert>
+          ) : (
+            <Grid container justifyContent="center" spacing={3}>
+              {theatres.map((theatre) => (
+                <Grid item key={theatre.id} xs={12} sm={6} md={4}>
+                  <TheatreCard theatre={theatre} />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-
+          )}
+        </>
       )}
     </Container>
   );

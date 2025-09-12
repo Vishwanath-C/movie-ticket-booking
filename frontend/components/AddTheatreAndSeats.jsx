@@ -1,26 +1,26 @@
-import { useEffect, useState } from "react";
-import apiClient from "../src/api";
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
+  Alert,
+  Box,
   Button,
+  Container,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Box,
-  IconButton,
-  Alert,
+  TextField,
+  Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { useEffect, useState } from "react";
+import apiClient from "../src/api";
 
 const AddTheatreAndSeats = () => {
   const token = localStorage.getItem("token");
@@ -105,8 +105,8 @@ const AddTheatreAndSeats = () => {
     ]);
 
     // Reset seat inputs
-    setCurrentSeatType("REGULAR");
-    setCurrentPrice(0);
+    setCurrentSeatType("")
+    setCurrentPrice(0.0);
     setCurrentRows(0);
     setCurrentSeatsPerRow(0);
     setErrors((prev) => ({ ...prev, seatType: "", currentPrice: "", currentRows: "", currentSeatsPerRow: "" }));
@@ -131,10 +131,10 @@ const AddTheatreAndSeats = () => {
       newErrors.seatType = "Add at least one seat configuration.";
     }
 
-    if (!valid) {
-      setErrors((prev) => ({ ...prev, ...newErrors }));
-      return;
-    }
+    // if (!valid) {
+    //   setErrors((prev) => ({ ...prev, ...newErrors }));
+    //   return;
+    // }
 
     const requestBody = { name, location, seatTypeRequests: seatConfigs };
 
@@ -172,23 +172,6 @@ const AddTheatreAndSeats = () => {
           </Typography>
         </Box>
 
-        {theatreAddedAlert.show && (
-          <Alert
-            severity="success"
-            sx={{ mb: 2 }}
-            action={
-              <IconButton
-                color="inherit"
-                size="small"
-                onClick={() => setTheatreAddedAlert({ show: false, msg: "" })}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {theatreAddedAlert.msg}
-          </Alert>
-        )}
 
         <Box component="form" onSubmit={handleSubmit}>
           {/* Theatre Details */}
@@ -233,6 +216,7 @@ const AddTheatreAndSeats = () => {
             type="number"
             fullWidth
             margin="normal"
+            inputProps={{ min: 0.01, step: 0.01 }}
             value={currentPrice}
             onChange={(e) => setCurrentPrice(e.target.value)}
             error={!!errors.currentPrice}
@@ -243,6 +227,7 @@ const AddTheatreAndSeats = () => {
             type="number"
             fullWidth
             margin="normal"
+            inputProps={{ min: 1 }}
             value={currentRows}
             onChange={(e) => setCurrentRows(e.target.value)}
             error={!!errors.currentRows}
@@ -253,6 +238,7 @@ const AddTheatreAndSeats = () => {
             type="number"
             fullWidth
             margin="normal"
+            inputProps={{ min: 1 }}
             value={currentSeatsPerRow}
             onChange={(e) => setCurrentSeatsPerRow(e.target.value)}
             error={!!errors.currentSeatsPerRow}
@@ -315,6 +301,24 @@ const AddTheatreAndSeats = () => {
               Add Theatre
             </Button>
           </Box>
+          {theatreAddedAlert.show && (
+            <Alert
+              severity="success"
+              sx={{ mt: 2, mb: 2 }}
+              action={
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={() => setTheatreAddedAlert({ show: false, msg: "" })}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {theatreAddedAlert.msg}
+            </Alert>
+          )}
+
         </Box>
       </Paper>
     </Container>

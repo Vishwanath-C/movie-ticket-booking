@@ -1,7 +1,3 @@
-import AddTheatre from "./AddTheatre"
-import AddTheatreAndSeats from "./AddTheatreAndSeats";
-import AssignMovieToTheatre from "./AssignMovieToTheatre";
-import GenerateSeatLayout from "./GenerateSeatLayout";
 import ViewTheatres from "./ViewTheatres";
 
 const Theatres = () => {

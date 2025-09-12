@@ -1,82 +1,75 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate, matchPath } from 'react-router-dom';
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
+  Box,
+  Collapse,
+  Divider,
   Drawer,
-  Toolbar,
   List,
   ListItemButton,
   ListItemText,
-  Collapse,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Box,
-  Divider,
-} from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+  useMediaQuery
+} from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
-export default function Sidebar({ setIsLoggedIn }) {
+export default function Sidebar({ setIsLoggedIn, open, onMenuToggle }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const role = localStorage.getItem('role');
+  const role = localStorage.getItem("role");
+
+  // Detect mobile using a plain media query string
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   // Menu items
   const adminItems = [
-    { id: 'sec-home', label: 'Home', path: '/app/movies' },
+    { id: "sec-home", label: "Home", path: "/app/movies" },
     {
-      id: 'sec-theatres',
-      label: 'Theatres',
+      id: "sec-theatres",
+      label: "Theatres",
       children: [
-        { id: 'theatres-view', label: 'View Theatres', path: '/app/theatres' },
-        { id: 'theatres-add', label: 'Add Theatre', path: '/app/theatres/new' },
-        { id: 'movies-assign', label: 'Assign Movie', path: '/app/theatres/assign-movie' },
+        { id: "theatres-view", label: "View Theatres", path: "/app/theatres" },
+        { id: "theatres-add", label: "Add Theatre", path: "/app/theatres/new" },
+        { id: "movies-assign", label: "Assign Movie", path: "/app/theatres/assign-movie" },
       ],
     },
     {
-      id: 'sec-movies',
-      label: 'Movies',
+      id: "sec-movies",
+      label: "Movies",
       children: [
-        // { id: 'movies-see', label: 'See Movies', path: '/app/movies' },
-        { id: 'movies-add', label: 'Add Movie', path: '/app/movies/new' },
-        { id: 'movies-now', label: 'Now Showing', path: '/app/movies' },
-        { id: 'movies-soon', label: 'Coming Soon', path: '/app/movies/upcoming' },
+        { id: "movies-add", label: "Add Movie", path: "/app/movies/new" },
+        { id: "movies-now", label: "Now Showing", path: "/app/movies" },
+        { id: "movies-soon", label: "Coming Soon", path: "/app/movies/upcoming" },
       ],
     },
   ];
 
   const userItems = [
-    { id: 'sec-home', label: 'Home', path: '/app/movies' },
+    { id: "sec-home", label: "Home", path: "/app/movies" },
     {
-
-      id: 'sec-user-movies',
-      label: 'Movies',
+      id: "sec-user-movies",
+      label: "Movies",
       children: [
-        { id: 'movies-now', label: 'Now Showing', path: '/app/movies' },
-        { id: 'movies-soon', label: 'Coming Soon', path: '/app/movies/upcoming' },
+        { id: "movies-now", label: "Now Showing", path: "/app/movies" },
+        { id: "movies-soon", label: "Coming Soon", path: "/app/movies/upcoming" },
       ],
     },
     {
-      id: 'sec-bookings',
-      label: 'My Bookings',
+      id: "sec-bookings",
+      label: "My Bookings",
       children: [
-        { id: 'tickets', label: 'Tickets', path: '/app/tickets/upcoming' },
-        { id: 'history', label: 'History', path: '/app/tickets/history' },
-        // { id: 'tickets', label: 'Tickets', path: '/app/tickets' },
-        // { id: 'history', label: 'History', path: '/app/tickets/history' },
+        { id: "tickets", label: "Tickets", path: "/app/tickets/upcoming" },
+        { id: "history", label: "History", path: "/app/tickets/history" },
       ],
     },
   ];
 
-  const items = useMemo(() => (role === 'ADMIN' ? adminItems : userItems), [role]);
-  console.log(items);
+  const items = useMemo(() => (role === "ADMIN" ? adminItems : userItems), [role]);
   const [openMap, setOpenMap] = useState({});
 
+  // Helpers for active route
   const isActiveExact = useCallback(
     (path) => !!path && !!matchPath({ path, end: true }, location.pathname),
     [location.pathname]
@@ -88,8 +81,6 @@ export default function Sidebar({ setIsLoggedIn }) {
       (node.path ? isActiveExact(node.path) : false),
     [isActiveExact]
   );
-
-
 
   useEffect(() => {
     const nextOpen = {};
@@ -106,16 +97,11 @@ export default function Sidebar({ setIsLoggedIn }) {
   const toggleSection = (id) => setOpenMap((m) => ({ ...m, [id]: !m[id] }));
 
   const handleItemClick = (item) => {
-    if (item.action === 'logout') setLogoutOpen(true);
-    else if (item.path) navigate(item.path);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    setLogoutOpen(false);
-    navigate('/');
+    if (item.action === "logout") setLogoutOpen(true);
+    else if (item.path) {
+      navigate(item.path);
+      if (isMobile && onMenuToggle) onMenuToggle(); // close on mobile
+    }
   };
 
   const renderNode = useCallback(
@@ -134,11 +120,10 @@ export default function Sidebar({ setIsLoggedIn }) {
                 pl: paddingLeft,
                 borderRadius: 1,
                 mb: 0.5,
-                backgroundColor: sectionActive ? 'primary.light' : 'transparent',
-                color: sectionActive ? 'white' : 'text.primary',
+                backgroundColor: sectionActive ? "primary.light" : "transparent",
+                color: sectionActive ? "white" : "text.primary",
                 fontWeight: sectionActive ? 600 : 400,
-                '&:hover': { backgroundColor: sectionActive ? 'primary.main' : 'primary.lighter' },
-                '& .MuiListItemText-root': { margin: 0 }, 
+                "&:hover": { backgroundColor: sectionActive ? "primary.main" : "primary.lighter" },
               }}
             >
               <ListItemText primary={node.label} />
@@ -161,15 +146,13 @@ export default function Sidebar({ setIsLoggedIn }) {
           onClick={() => handleItemClick(node)}
           selected={active}
           sx={{
-            pl: paddingLeft, // same formula keeps alignment with items with children
+            pl: paddingLeft,
             borderRadius: 1,
-            // fontWeight:bold,
             mb: 0.5,
-            backgroundColor: active ? 'primary.light' : 'transparent',
-            color: active ? 'primary.main' : 'text.primary',
+            backgroundColor: active ? "primary.light" : "transparent",
+            color: active ? "primary.main" : "text.primary",
             fontWeight: active ? 600 : 400,
-            '&:hover': { backgroundColor: 'primary.lighter' },
-            '& .MuiListItemText-root': { margin: 0 }, // fixes top-level leaf alignment
+            "&:hover": { backgroundColor: "primary.lighter" },
           }}
         >
           <ListItemText primary={node.label} />
@@ -182,54 +165,30 @@ export default function Sidebar({ setIsLoggedIn }) {
   return (
     <>
       <Drawer
-        variant="permanent"
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? open : true}
+        onClose={onMenuToggle}
         anchor="left"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: drawerWidth,
-            boxSizing: 'border-box',
-            top: '90px', // match AppBar height
-            display: 'flex',
-            flexDirection: 'column',
-            borderRight: '1px solid #ddd',
+            boxSizing: "border-box",
+            top: "90px",
+            display: "flex",
+            flexDirection: "column",
+            borderRight: "1px solid #ddd",
+            height: `calc(100vh - 90px)`,
           },
         }}
       >
-        <Toolbar />
-        <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 1 }}>
-          <List>
-            {items.map((item) => renderNode(item))}
-          </List>
+        {/* <Toolbar /> */}
+        <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1 }}>
+          <List>{items.map((item) => renderNode(item))}</List>
         </Box>
-
         <Divider />
-        <Box sx={{ p: 1 }}>
-          <Button
-            variant="contained"
-            color="error"
-            fullWidth
-            onClick={handleLogout}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Logout
-          </Button>
-        </Box>
       </Drawer>
-
-      <Dialog open={logoutOpen} onClose={() => setLogoutOpen(false)}>
-        <DialogTitle>Log out</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to logout?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setLogoutOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleLogout}>
-            Logout
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }

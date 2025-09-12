@@ -1,10 +1,22 @@
+import MenuIcon from "@mui/icons-material/Menu";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useState } from "react";
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 
-const AppBarComponent = ({ isLoggedIn, setIsLoggedIn }) => {
+const AppBarComponent = ({ isLoggedIn, setIsLoggedIn, onMenuToggle }) => {
   const role = localStorage.getItem("role");
-  
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width:600px)"); // mobile detection
 
   const handleLogoutConfirm = () => {
     localStorage.removeItem("token");
@@ -25,11 +37,18 @@ const AppBarComponent = ({ isLoggedIn, setIsLoggedIn }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          px: 4,
+          px: 2,
         }}
       >
+        {/* Hamburger menu for mobile */}
+        {isMobile && isLoggedIn && (
+          <IconButton color="inherit" onClick={onMenuToggle}>
+            <MenuIcon />
+          </IconButton>
+        )}
+
         {/* Role badge */}
-        {isLoggedIn && (
+        {isLoggedIn && !isMobile && (
           <Box
             sx={{
               bgcolor: "#ffc107",
@@ -61,7 +80,7 @@ const AppBarComponent = ({ isLoggedIn, setIsLoggedIn }) => {
         </Typography>
 
         {/* Logout button */}
-        {isLoggedIn && (
+        {isLoggedIn && !isMobile && (
           <Button
             sx={{
               borderRadius: "0.5rem",
@@ -78,7 +97,7 @@ const AppBarComponent = ({ isLoggedIn, setIsLoggedIn }) => {
         )}
       </Box>
 
-      {/* Logout Confirmation Dialog */}
+      {/* Logout confirmation dialog */}
       <Dialog
         open={logoutOpen}
         onClose={() => setLogoutOpen(false)}
@@ -91,8 +110,12 @@ const AppBarComponent = ({ isLoggedIn, setIsLoggedIn }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", gap: 2, pb: 2 }}>
-          <Button variant="outlined" onClick={() => setLogoutOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleLogoutConfirm}>Logout</Button>
+          <Button variant="outlined" onClick={() => setLogoutOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="error" onClick={handleLogoutConfirm}>
+            Logout
+          </Button>
         </DialogActions>
       </Dialog>
     </>

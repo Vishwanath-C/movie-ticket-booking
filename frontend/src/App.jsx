@@ -3,13 +3,12 @@ import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 import HomePage from "../components/HomePage";
-import Layout from "../components/Layout";
 import Login from "../components/Login";
 import ProtectedRoute from "../components/ProtectedRoute";
 import PublicLayout from "../components/PublicLayout";
 import Register from "../components/Register";
 
-import AddMovie from "../components/AddMovie";
+import AddMovieForm from "../components/AddMovieForm";
 import AddTheatreAndSeats from "../components/AddTheatreAndSeats";
 import AssignMovieToTheatre from "../components/AssignMovieToTheatre";
 import Bookings from "../components/Bookings";
@@ -19,6 +18,7 @@ import ShowSeatLayoutDup from "../components/ShowSeatLayoutDup";
 import Theatres from "../components/Theatres";
 import TicketPage from "../components/TicketPage";
 import UpcomingBookings from "../components/UpcomingBookings";
+import DashboardLayout from "../components/DashboardLayout";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,35 +43,34 @@ function App() {
       <CssBaseline />
 
       <Routes>
-  {/* Public routes */}
-  <Route element={<PublicLayout />}>
-    <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
-    <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-    <Route path="/register" element={<Register />} />
-  </Route>
+        {/* Public routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
+          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
 
-  {/* Protected routes */}
-  <Route
-    path="/app/*"
-    element={<ProtectedRoute setIsLoggedIn={setIsLoggedIn} />}
-  >
-    <Route element={<Layout setIsLoggedIn={setIsLoggedIn} />}>
-      <Route path="home" element={<MovieActions />} />
-      <Route path="movies" element={<MovieActions nowrunning={true}/>} />
-      <Route path="movies/upcoming" element={<MovieActions nowrunning={false}/>} />
-      <Route path="movies/new" element={<AddMovie />} />
-      <Route path="theatres" element={<Theatres />} />
-      <Route path="theatres/new" element={<AddTheatreAndSeats />} />
-      <Route path="theatres/assign-movie" element={<AssignMovieToTheatre />} />
-      {/* <Route path="tickets" element={<MyBookings />} /> */}
-      <Route path="tickets/upcoming" element={<UpcomingBookings/>} />
-      <Route path="tickets/history" element={<FinishedBookings/>} />
-      <Route path="seatlayout" element={<ShowSeatLayoutDup />} />
-      <Route path="bookings/:movieId" element={<Bookings/>} />
-      <Route path="tickets/view" element={<TicketPage />} />
-    </Route>
-  </Route>
-</Routes>
+        {/* Protected routes */}
+        <Route
+          path="/app/*"
+          element={<ProtectedRoute setIsLoggedIn={setIsLoggedIn} />}
+        >
+          <Route element={<DashboardLayout setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />}>
+            <Route path="home" element={<MovieActions />} />
+            <Route path="movies" element={<MovieActions nowrunning={true} />} />
+            <Route path="movies/upcoming" element={<MovieActions nowrunning={false} />} />
+            <Route path="movies/new" element={<AddMovieForm />} />
+            <Route path="theatres" element={<Theatres />} />
+            <Route path="theatres/new" element={<AddTheatreAndSeats />} />
+            <Route path="theatres/assign-movie" element={<AssignMovieToTheatre />} />
+            <Route path="tickets/upcoming" element={<UpcomingBookings />} />
+            <Route path="tickets/history" element={<FinishedBookings />} />
+            <Route path="seatlayout" element={<ShowSeatLayoutDup />} />
+            <Route path="bookings/:movieId" element={<Bookings />} />
+            <Route path="tickets/view" element={<TicketPage />} />
+          </Route>
+        </Route>
+      </Routes>
 
 
 

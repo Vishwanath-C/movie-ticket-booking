@@ -1,6 +1,6 @@
 
 const AlertMessage = ({ show, variant = "warning", msg, onClose }) => {
-  if (!show) return null; 
+  if (!show) return null;
 
   return (
     <div

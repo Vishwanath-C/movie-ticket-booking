@@ -16,6 +16,7 @@ public class ErrorResponseDto
 {
     private String message;
     private int status;
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private final LocalDateTime timestamp = LocalDateTime.now();
     private Map<String, String> fieldErrors;
+    private String path;
 }

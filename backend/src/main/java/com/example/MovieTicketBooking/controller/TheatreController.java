@@ -26,8 +26,8 @@ public class TheatreController
     }
 
     @GetMapping("")
-    public List<TheatreResponseDto> getAllTheatres() {
-        return theatreService.getAllTheatres();
+    public ResponseEntity<List<TheatreResponseDto>> getAllTheatres() {
+        return ResponseEntity.ok(theatreService.getAllTheatres());
     }
 
     @GetMapping("/{id}")

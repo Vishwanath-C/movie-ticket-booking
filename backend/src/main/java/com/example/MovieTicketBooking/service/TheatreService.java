@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TheatreService
 {
-    private final  TheatreRepository theatreRepository;
-    private final  TheatreRequestDtoMapper theatreRequestDtoMapper;
-    private final   TheatreResponseDtoMapper theatreResponseDtoMapper;
+    private final TheatreRepository theatreRepository;
+    private final TheatreRequestDtoMapper theatreRequestDtoMapper;
+    private final TheatreResponseDtoMapper theatreResponseDtoMapper;
 
     /**
      * Creates a new theatre and initializes seats based on the provided request data

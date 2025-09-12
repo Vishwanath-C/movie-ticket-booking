@@ -5,107 +5,114 @@ import {
   CardContent,
   CardHeader,
   Chip,
+  CircularProgress,
   Grid,
   Stack,
   Typography,
-  CircularProgress,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import apiClient from "../src/api";
 
 const Bookings = () => {
   const location = useLocation();
-  const { movie } = location.state || {}; // Get movie object from navigation state
+  const { movie } = location.state || {};
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const { movieId } = useParams();
 
-  // Movie shows for the selected date
-  const [movieShows, setMovieShows] = useState([]);
-
-  // Available dates from backend
-  const [availableDates, setAvailableDates] = useState([]);
-
-  // Selected date in the date selector
-  const [selectedDate, setSelectedDate] = useState(() => {
-    // If upcoming shows exist, select the first available date automatically
+  // State
+  const [showGroups, setShowGroups] = useState([]);
+  const [showDates, setShowDates] = useState([]);
+  const [activeDate, setActiveDate] = useState(() => {
     if (movie?.isUpcoming && movie?.availableShowDates?.length > 0) {
       return movie.availableShowDates[0];
     }
-    // Otherwise default to today
     return new Date().toISOString().split("T")[0];
   });
 
-  // Error handling for fetch
-  const [error, setError] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Determines whether there are any shows for the selected date
-  const noShows = !movieShows.some((group) => group.length > 0);
+  // Derived state: no shows
+  const hasNoShows =
+    !Array.isArray(showGroups) ||
+    showGroups.length === 0 ||
+    showGroups.every((group) => group.length === 0);
 
-  /**
-   * Generates an array of upcoming dates to show in the date selector.
-   * Starts from today for running shows or first available date for upcoming shows.
-   */
-  const getUpcomingDates = (numDays = 7) => {
-    const dates = [];
-    let startDate;
-
-    if (movie.isCurrentlyRunning) {
-      startDate = new Date(); // Today for running movies
-    } else if (movie?.isUpcoming && movie?.availableShowDates?.length > 0) {
-      startDate = new Date(movie.availableShowDates[0]); // First upcoming date
-    } else {
-      startDate = new Date(); // Default fallback
-    }
-
-    for (let i = 0; i < numDays; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      dates.push(date);
-    }
-
-    return dates;
+  // Format show time
+  const formatShowTime = (timeStr) => {
+    const [hour, minutes] = timeStr.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const hours12 = hour % 12 || 12;
+    return `${hours12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
   };
 
-  // Set available dates from the movie object and auto-select first date for upcoming shows
+  // Generate upcoming dates (memoized)
+  const generateUpcomingDates = useMemo(() => {
+    return (numDays = 7) => {
+      const dates = [];
+      let startDate;
+
+      if (movie?.isCurrentlyRunning) {
+        startDate = new Date();
+      } else if (movie?.isUpcoming && movie?.availableShowDates?.length > 0) {
+        startDate = new Date(movie.availableShowDates[0]);
+      } else {
+        startDate = new Date();
+      }
+
+      for (let i = 0; i < numDays; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        dates.push(date);
+      }
+
+      return dates;
+    };
+  }, [movie]);
+
+  // Load available show dates from movie
   useEffect(() => {
     if (movie?.availableShowDates) {
-      setAvailableDates(movie.availableShowDates);
+      setShowDates(movie.availableShowDates);
 
       if (movie.isUpcoming && movie.availableShowDates.length > 0) {
-        setSelectedDate(movie.availableShowDates[0]);
+        setActiveDate(movie.availableShowDates[0]);
       }
     }
   }, [movie]);
 
-  // Fetch shows whenever selected date or movieId changes
+  // Fetch shows whenever active date or movieId changes
   useEffect(() => {
-    if (movieId && selectedDate) {
-      fetchMovieShows(selectedDate);
+    if (movieId && activeDate) {
+      loadShowsForDate(activeDate);
     }
-  }, [movieId, selectedDate]);
+  }, [movieId, activeDate]);
 
-  // Fetch shows for a specific date
-  const fetchMovieShows = async (date) => {
-    setError(null);
+  // Fetch shows for a given date
+  const loadShowsForDate = async (date) => {
+    setFetchError(null);
+    setIsLoading(true);
     try {
       const response = await apiClient.get(
         `/movies/${movieId}/shows/date/${date}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMovieShows(response.data);
+      setShowGroups(response.data);
     } catch (err) {
-      console.error("Error fetching movie shows:", err);
-      setError("Failed to load movie shows. Please try again later.");
+      console.error("Error fetching shows:", err);
+      setFetchError("Failed to load movie shows. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Navigate to seat layout page for selected show
-  const handleShowSeatLayout = (selectedMovieShow) => {
-    navigate("/app/seatlayout", { state: { selectedMovieShow } });
+  // Navigate to seat layout
+  const goToSeatLayout = (selectedShow) => {
+    navigate("/app/seatlayout", { state: { selectedShow } });
   };
 
   return (
@@ -119,7 +126,7 @@ const Bookings = () => {
         alignItems: "center",
       }}
     >
-      {/* Date Selector */}
+      {/* Show Date Selector */}
       <Box
         sx={{
           mb: 3,
@@ -131,17 +138,25 @@ const Bookings = () => {
           width: "100%",
         }}
       >
-        {getUpcomingDates(10).map((dateObj) => {
+        {generateUpcomingDates(10).map((dateObj) => {
           const dateStr = dateObj.toISOString().split("T")[0];
           const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
           const dayNumber = dateObj.getDate();
-          const isSelected = selectedDate === dateStr;
-          const isAvailable = availableDates.includes(dateStr);
+          const month = dateObj.toLocaleString("en-US", { month: "short" });
+          const isSelected = activeDate === dateStr;
+          const isAvailable = showDates.includes(dateStr);
 
           return (
             <Box
               key={dateStr}
-              onClick={() => isAvailable && setSelectedDate(dateStr)}
+              role="button"
+              aria-label={`Select date ${dayName}, ${month} ${dayNumber}`}
+              onClick={() => {
+                if (isAvailable) {
+                  setFetchError(null); // Clear error when switching date
+                  setActiveDate(dateStr);
+                }
+              }}
               sx={{
                 minWidth: 60,
                 cursor: isAvailable ? "pointer" : "not-allowed",
@@ -167,27 +182,42 @@ const Bookings = () => {
               <Typography variant="h6" fontWeight="bold">
                 {dayNumber}
               </Typography>
+              <Typography variant="body2">{month}</Typography>
             </Box>
           );
         })}
       </Box>
 
-      {/* Error Message */}
-      {error && (
+      {/* Loading Spinner */}
+      {isLoading && (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {/* Error with Retry */}
+      {fetchError && !isLoading && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
           <Card sx={{ maxWidth: 400, p: 3, textAlign: "center" }}>
             <Typography variant="h6" color="error" fontWeight="bold">
               ⚠️ Error
             </Typography>
             <Typography variant="body2" color="text.secondary" mt={1}>
-              {error}
+              {fetchError}
             </Typography>
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={() => loadShowsForDate(activeDate)}
+            >
+              Retry
+            </Button>
           </Card>
         </Box>
       )}
 
-      {/* No Shows Available */}
-      {!error && noShows && (
+      {/* No Shows */}
+      {!fetchError && !isLoading && hasNoShows && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
           <Card sx={{ maxWidth: 400, p: 3, textAlign: "center" }}>
             <Typography variant="h6" color="text.secondary" fontWeight="bold">
@@ -200,82 +230,92 @@ const Bookings = () => {
         </Box>
       )}
 
-      {/* Theatres with Shows */}
-      <Stack spacing={3} sx={{ width: "100%" }}>
-        {movieShows.map(
-          (group, groupIndex) =>
-            group.length > 0 && (
-              <Card
-                variant="outlined"
-                sx={{ borderRadius: 2, width: "100%" }}
-                key={groupIndex}
-              >
-                <CardHeader
-                  title={
-                    <>
-                      <Typography variant="h6" fontWeight="bold">
-                        {group[0].theatreName}
-                      </Typography>
-                      <Typography fontWeight="normal">
-                        {group[0].theatreLocation}
-                      </Typography>
-                    </>
-                  }
-                  sx={{
-                    bgcolor: "primary.main",
-                    color: "white",
-                    borderRadius: "8px 8px 0 0",
-                    textAlign: "center",
-                  }}
-                />
-                <CardContent sx={{ bgcolor: "grey.100" }}>
-                  <Grid container justifyContent="center" spacing={2}>
-                    {group.map((movieShow, index) => {
-                      const showDateTime = new Date(
-                        `${movieShow.showDate}T${movieShow.showTime}`
-                      );
-                      const isPast = showDateTime.getTime() < Date.now();
-                      const isSoldOut = movieShow.availableSeatsCount === 0;
+      {/* Theatre Show Groups */}
+      {!isLoading && !fetchError && (
+        <Stack spacing={3} sx={{ width: "100%" }}>
+          {showGroups.map(
+            (group, groupIndex) =>
+              group.length > 0 && (
+                <Card
+                  variant="outlined"
+                  sx={{ borderRadius: 2, width: "100%" }}
+                  key={groupIndex}
+                >
+                  <CardHeader
+                    title={
+                      <>
+                        <Typography variant="h6" fontWeight="bold">
+                          {group[0].theatreName}
+                        </Typography>
+                        <Typography fontWeight="normal">
+                          {group[0].theatreLocation}
+                        </Typography>
+                      </>
+                    }
+                    sx={{
+                      bgcolor: "primary.main",
+                      color: "white",
+                      borderRadius: "8px 8px 0 0",
+                      textAlign: "center",
+                    }}
+                  />
+                  <CardContent sx={{ bgcolor: "grey.100" }}>
+                    <Grid container justifyContent="center" spacing={2}>
+                      {group.map((show, index) => {
+                        const showDateTime = new Date(
+                          `${show.showDate}T${show.showTime}`
+                        );
+                        const isPast = showDateTime.getTime() < Date.now();
+                        const isSoldOut = show.availableSeatsCount === 0;
 
-                      return (
-                        <Grid item xs={6} sm={4} md={2} key={index}>
-                          <Box textAlign="center">
-                            <Button
-                              variant={
-                                isPast || isSoldOut || role === "ADMIN"
-                                  ? "outlined"
-                                  : "contained"
-                              }
-                              color={isPast || isSoldOut ? "inherit" : "primary"}
-                              onClick={() => handleShowSeatLayout(movieShow)}
-                              disabled={isPast || isSoldOut || role === "ADMIN"}
-                              sx={{ width: "100%", fontWeight: "bold" }}
-                            >
-                              {movieShow.showTime}
-                            </Button>
-                            <Box sx={{ mt: 1 }}>
-                              {isPast ? (
-                                <Chip label="Show Passed" color="default" size="small" />
-                              ) : isSoldOut ? (
-                                <Chip label="Sold Out" color="error" size="small" />
-                              ) : (
-                                <Chip
-                                  label={`${movieShow.availableSeatsCount} Seats Left`}
-                                  color="success"
-                                  size="small"
-                                />
-                              )}
+                        return (
+                          <Grid item xs={6} sm={4} md={2} key={index}>
+                            <Box textAlign="center">
+                              <Button
+                                variant={
+                                  isPast || isSoldOut || role === "ADMIN"
+                                    ? "outlined"
+                                    : "contained"
+                                }
+                                color={isPast || isSoldOut ? "inherit" : "primary"}
+                                onClick={() => goToSeatLayout(show)}
+                                disabled={isPast || isSoldOut || role === "ADMIN"}
+                                sx={{ width: "100%", fontWeight: "bold" }}
+                              >
+                                {formatShowTime(show.showTime)}
+                              </Button>
+                              <Box sx={{ mt: 1 }}>
+                                {isPast ? (
+                                  <Chip
+                                    label="Show Passed"
+                                    color="default"
+                                    size="small"
+                                  />
+                                ) : isSoldOut ? (
+                                  <Chip
+                                    label="Sold Out"
+                                    color="error"
+                                    size="small"
+                                  />
+                                ) : (
+                                  <Chip
+                                    label={`${show.availableSeatsCount} Seats Left`}
+                                    color="success"
+                                    size="small"
+                                  />
+                                )}
+                              </Box>
                             </Box>
-                          </Box>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                </CardContent>
-              </Card>
-            )
-        )}
-      </Stack>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              )
+          )}
+        </Stack>
+      )}
     </Box>
   );
 };

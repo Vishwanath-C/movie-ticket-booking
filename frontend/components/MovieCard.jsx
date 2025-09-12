@@ -1,14 +1,13 @@
-import { Card, CardContent, CardActions, Typography, Button, Box, CardMedia } from '@mui/material';
+import { Box, Button, Card, CardActions, CardMedia, Typography } from '@mui/material';
 import { useNavigate } from "react-router-dom";
-import NoImageAvailable from "../src/assets/no-image-available.png"
+import NoImageAvailable from "../src/assets/no-image-available.png";
 
 const MovieCard = ({ movie }) => {
   const role = localStorage.getItem('role');
   const navigate = useNavigate();
-  
+
   const handleBooking = () => {
-    console.log("MO ", movie);
-    navigate(`/app/bookings/${movie.id}`, {state: {movie}});
+    navigate(`/app/bookings/${movie.id}`, { state: { movie } });
   };
 
   return (
@@ -29,7 +28,7 @@ const MovieCard = ({ movie }) => {
       <Box sx={{ height: 220, overflow: "hidden" }}>
         <CardMedia
           component="img"
-          image={NoImageAvailable}
+          image={movie.posterUrl || NoImageAvailable}
           alt={movie.title}
           sx={{
             width: "100%",
@@ -46,12 +45,19 @@ const MovieCard = ({ movie }) => {
         <Typography
           variant="h6"
           align="center"
+          // sx={{
+          //   fontWeight: "bold",
+          //   color: "primary.main",
+          //   textTransform: "uppercase",
+          //   mb: 1,
+          // }}
           sx={{
-            fontWeight: "bold",
-            color: "primary.main",
-            textTransform: "uppercase",
-            mb: 1,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
           }}
+
         >
           {movie.title}
         </Typography>

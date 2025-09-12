@@ -10,7 +10,6 @@ const GenerateSeatLayout = () => {
     const [selectedSeatType, setSelectedSeatType] = useState(null);
 
     const [price, setPrice] = useState('');
-    // const [numberOfSeats, setNumberOfSeats] = useState('');
     const [rowCount, setRowCount] = useState('');
     const [seatsPerRow, setSeatsPerRow] = useState('');
 

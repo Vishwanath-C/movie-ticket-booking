@@ -1,65 +1,57 @@
+import { Button, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { Alert, Stack, IconButton } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
 
 const CreateMovieShow = ({ showTimes, setShowTimes, maxShows }) => {
   const [showTime, setShowTime] = useState("");
   const [showLimitAlert, setShowLimitAlert] = useState(false);
 
-  const handleAddShowTime = (e) => {
-    e.preventDefault();
+  const handleAddShowTime = () => {
+    if (!showTime) return;
 
     if (showTimes.length >= maxShows) {
       setShowLimitAlert(true);
-
-      // Hide alert after 3 seconds
-      setTimeout(() => setShowLimitAlert(false), 5000);
+      setTimeout(() => setShowLimitAlert(false), 3000);
       return;
     }
-
-    if (!showTime) return;
 
     setShowTimes([...showTimes, showTime]);
     setShowTime("");
   };
 
-  const handleCloseAlert = () => {
-    setShowLimitAlert(false);
-  };
+  const handleCloseAlert = () => setShowLimitAlert(false);
 
   return (
     <Stack spacing={1} sx={{ mb: 2 }}>
-      <div>
-        <label className="form-label fw-bold p-2">Select show time:</label>
-        <input
+      <Stack direction="row" spacing={1} alignItems="center">
+        <TextField
           type="time"
-          className="border border-dark p-2 rounded m-2"
+          label="Select show time"
           value={showTime}
           onChange={(e) => setShowTime(e.target.value)}
+          size="small"
+          sx={{ width: 150 }}
+          // error={maxReached}
+          // helperText={maxReached ? `Maximum ${maxShows} show times reached.` : " "}
+          InputLabelProps={{ shrink: true }}
         />
-        <button className="btn btn-primary" onClick={handleAddShowTime}>
-          Add
-        </button>
-      </div>
 
-      {showLimitAlert && (
-        <Alert
-          severity="warning"
-          variant="outlined"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={handleCloseAlert}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddShowTime}
+          disabled={showTimes.length >= maxShows}
         >
-          You can only add {maxShows} show times.
-        </Alert>
+          Add
+        </Button>
+      </Stack>
+
+      {showTimes.length >= maxShows && (
+        <Typography variant="caption" color="warning.main">
+          Maximum {maxShows} show times reached.
+        </Typography>
       )}
+
+
     </Stack>
   );
 };

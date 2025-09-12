@@ -10,7 +10,6 @@ import com.example.MovieTicketBooking.repository.ShowSeatRepository;
 import com.example.MovieTicketBooking.repository.TicketRepository;
 import com.example.MovieTicketBooking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,18 +23,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketService
 {
-    private final  TicketRepository ticketRepository;
-    private final  UserService userService;
-    private final TicketSeatService ticketSeatService;
-    private final  MovieShowService movieShowService;
-    private final  MovieShowRepository movieShowRepository;
-    private final  TicketDTOMapper ticketDTOMapper;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    ShowSeatRepository showSeatRepository;
+    private final TicketRepository ticketRepository;
+    private final UserService userService;
+    private final MovieShowService movieShowService;
+    private final MovieShowRepository movieShowRepository;
+    private final TicketDTOMapper ticketDTOMapper;
+    private final UserRepository userRepository;
+    private final ShowSeatRepository showSeatRepository;
 
     /**
      * Books a ticket for the user and generates a response with the ticket details.

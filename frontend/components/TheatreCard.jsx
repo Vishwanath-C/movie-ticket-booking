@@ -1,9 +1,31 @@
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Typography, Paper } from "@mui/material";
+
+// Modern row with subtle background
+function InfoRow({ icon: Icon, text }) {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        p: 1,
+        mb: 1,
+        borderRadius: 2,
+        bgcolor: 'grey.100',
+      }}
+    >
+      <Icon sx={{ color: 'primary.main', mr: 1 }} />
+      <Typography variant="body2" color="text.secondary" fontWeight={"bold"}>
+        {text}
+      </Typography>
+    </Paper>
+  );
+}
 
 export default function TheatreCard({ theatre, onDelete, onViewShows }) {
-  const hasShows = theatre.shows && theatre.shows.length > 0;
+  const hasShows = theatre.shows?.length > 0;
 
   return (
     <Card
@@ -16,12 +38,13 @@ export default function TheatreCard({ theatre, onDelete, onViewShows }) {
         flexDirection: "column",
         justifyContent: "space-between",
         height: "100%",
-        width: 240,
+        width: 260,
         p: 2,
         mx: "auto",
+        bgcolor: 'background.paper',
       }}
     >
-      <CardContent>
+      <CardContent sx={{ pb: 1 }}>
         <Typography
           variant="h6"
           component="div"
@@ -29,32 +52,13 @@ export default function TheatreCard({ theatre, onDelete, onViewShows }) {
           gutterBottom
           sx={{ color: "primary.main" }}
         >
-          {theatre.name}
+          {theatre.name ?? "Unknown Theatre"}
         </Typography>
 
-        {/* Location */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <LocationOnIcon sx={{ color: 'text.secondary', mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">
-            {theatre.location}
-          </Typography>
-        </Box>
-
-        {/* Total Seats */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <EventSeatIcon sx={{ color: 'text.secondary', mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">
-            {theatre.seats?.length || 0} Seats
-          </Typography>
-        </Box>
-
-        {/* Total Shows */}
-        {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <MovieIcon sx={{ color: 'text.secondary', mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">
-            {theatre.shows?.length || 0} Shows
-          </Typography>
-        </Box> */}
+        <InfoRow icon={LocationOnIcon} text={theatre.location ?? "Unknown Location"} />
+        <InfoRow icon={EventSeatIcon} text={`${theatre.seats?.length || 0} Seats`} />
+        {/* Optional shows row */}
+        {/* <InfoRow icon={MovieIcon} text={`${theatre.shows?.length || 0} Shows`} /> */}
       </CardContent>
 
       <CardActions sx={{ justifyContent: "center", pb: 2, gap: 1 }}>
@@ -64,6 +68,7 @@ export default function TheatreCard({ theatre, onDelete, onViewShows }) {
           size="small"
           sx={{ fontWeight: "bold", borderRadius: 3, px: 3 }}
           onClick={() => onViewShows(theatre.id)}
+          aria-label={`View shows for ${theatre.name}`}
         >
           View Shows
         </Button>
@@ -76,6 +81,7 @@ export default function TheatreCard({ theatre, onDelete, onViewShows }) {
           onClick={() => onDelete(theatre.id)}
           disabled={hasShows}
           title={hasShows ? "Cannot delete theatre with existing shows" : ""}
+          aria-label={`Delete ${theatre.name}`}
         >
           Delete
         </Button>

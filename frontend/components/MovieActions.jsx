@@ -10,9 +10,6 @@ const MovieActions = ({ nowrunning }) => {
     const role = localStorage.getItem("role");
     const token = localStorage.getItem("token");
 
-    // let url = role === 'ADMIN' ? "/movies/all-movies" : nowrunning ? "/movies/now-running" :
-    //     "/movies/upcoming-movies";
-
     let url = nowrunning ? "/movies/now-running" :
         "/movies/upcoming";
 

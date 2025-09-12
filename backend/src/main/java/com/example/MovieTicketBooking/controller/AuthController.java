@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-//@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5176"}  )
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -29,8 +28,8 @@ public class AuthController
 
     @PostMapping("/admin/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public AuthResponse registerAdmin(@RequestBody RegisterRequest request) {
-        return authService.registerAdmin(request);
+    public ResponseEntity<AuthResponse> registerAdmin(@RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerAdmin(request));
     }
 
     @PostMapping("/login")

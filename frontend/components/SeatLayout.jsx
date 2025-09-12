@@ -1,7 +1,5 @@
 
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 export default function SeatLayout({ seats, handleSeatClick, selectedSeats }) {
 

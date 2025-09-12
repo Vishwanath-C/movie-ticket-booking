@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-//@CrossOrigin(origins = {"http://localhost:3000","http://localhost:5176"} )
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies/{movieId}/shows")

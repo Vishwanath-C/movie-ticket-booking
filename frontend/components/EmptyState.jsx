@@ -1,10 +1,10 @@
-import { Box, Container, Paper, Typography, Button } from "@mui/material";
+import { Button, Container, Paper, Typography } from "@mui/material";
 
-const EmptyState = ({ 
-  heading = "Nothing Here", 
-  message = null, 
-  buttonText = null, 
-  onButtonClick = null 
+const EmptyState = ({
+  heading = "Nothing Here",
+  message = null,
+  buttonText = null,
+  onButtonClick = null
 }) => {
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
@@ -35,9 +35,9 @@ const EmptyState = ({
 
         {/* Optional Button */}
         {buttonText && onButtonClick && (
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             sx={{ mt: 2, borderRadius: 2 }}
             onClick={onButtonClick}
           >

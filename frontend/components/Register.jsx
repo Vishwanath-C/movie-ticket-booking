@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../src/api";
+import { Snackbar, Alert } from "@mui/material";
+
 
 // MUI imports
 import {
@@ -14,12 +16,46 @@ import {
 
 const Register = () => {
   const navigate = useNavigate();
+
+  const [success, setSuccess] = useState(false);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setLoading(true);
+      await apiClient.post("/auth/register", {
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+      setSuccess(true);
+
+
+      setTimeout(() => {
+        setSuccess(false);
+        navigate("/");
+      }, 3000);
+
+
+    } catch (error) {
+      console.error("Registration failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const validate = () => {
     let tempErrors = {};
@@ -47,24 +83,7 @@ const Register = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
 
-    try {
-      console.log("In register");
-      await apiClient.post("/auth/register", {
-        firstName,
-        lastName,
-        email,
-        password,
-      });
-      console.log("After");
-      navigate("/");
-    } catch (error) {
-      console.error("Registration failed:", error);
-    }
-  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
@@ -148,6 +167,11 @@ const Register = () => {
           >
             Register
           </Button>
+          {success && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              Registration successful!
+            </Alert>
+          )}
         </Box>
       </Paper>
     </Container>

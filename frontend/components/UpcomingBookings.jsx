@@ -1,10 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import {
-    Box,
-    Container,
-    Divider,
-    Typography
-} from "@mui/material";
+import { Box, Button, Card, CardContent, Container, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../src/api";
@@ -13,37 +8,32 @@ import TicketList from "./TicketList";
 
 const UpcomingBookings = () => {
     const token = localStorage.getItem("token");
-    const [ticketsUpcoming, setTicketsUpcoming] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [upcomingTickets, setUpcomingTickets] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        handleShowTickets();
+        fetchUpcomingTickets();
     }, []);
 
-    const handleShowTickets = async () => {
+    const fetchUpcomingTickets = async () => {
+        setIsLoading(true);
+        setFetchError(null);
         try {
             const response = await apiClient.get("/tickets/upcoming", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            setTicketsUpcoming(response.data);
-          
-
+            setUpcomingTickets(response.data);
         } catch (error) {
-            if (error.response?.data?.fieldErrors) {     
-                setErrors(error.response.data.fieldErrors);
-            } else {
-                alert(error.response?.data?.message || "Something went wrong");
-            }
+            console.error("Error fetching upcoming tickets:", error);
+            setFetchError(error.response?.data?.message || "Failed to load your upcoming tickets. Please try again.");
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-
-
-    if (loading) {
+    if (isLoading) {
         return (
             <Container maxWidth="md" sx={{ mt: 8 }}>
                 <Box
@@ -51,8 +41,8 @@ const UpcomingBookings = () => {
                     flexDirection="column"
                     alignItems="center"
                     justifyContent="center"
-                    gap={2} // spacing between button and text
-                    minHeight="50vh" // vertically center
+                    gap={2}
+                    minHeight="50vh"
                 >
                     <LoadingButton
                         loading
@@ -70,54 +60,41 @@ const UpcomingBookings = () => {
         );
     }
 
+    if (fetchError) {
+        return (
+            <Container maxWidth="md" sx={{ mt: 8, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <Card sx={{ maxWidth: 400, p: 3, textAlign: "center" }}>
+                    <Typography variant="h6" color="error" fontWeight="bold">
+                        ⚠️ Error
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mt={1}>
+                        {fetchError}
+                    </Typography>
+                    <CardContent>
+                        <Button variant="contained" onClick={fetchUpcomingTickets}>
+                            Retry
+                        </Button>
+                    </CardContent>
+                </Card>
+            </Container>
+        );
+    }
 
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-            {/* Upcoming Tickets */}
-            {/* <Paper
-                elevation={3}
-                sx={{ p: 2, borderRadius: 3, backgroundColor: "#f9fafb", mb: 3 }}
-            >
-                <Typography variant="h5" fontWeight="bold" align="center">
-                    UPCOMING
-                </Typography>
-            </Paper> */}
             <Box sx={{ mb: 5 }}>
-                {ticketsUpcoming.length > 0 ? (
-                    <TicketList tickets={ticketsUpcoming} />
+                {upcomingTickets.length > 0 ? (
+                    <TicketList tickets={upcomingTickets} />
                 ) : (
-                    // <Typography align="center" color="text.secondary">
                     <EmptyState
                         heading="No Upcoming Tickets"
-
-
                         buttonText="Browse Movies"
                         onButtonClick={() => navigate("/app/movies")}
                     />
-                    // </Typography>
                 )}
             </Box>
 
             <Divider sx={{ my: 3 }} />
-
-            {/* Finished Tickets
-      <Paper
-        elevation={3}
-        sx={{ p: 2, borderRadius: 3, backgroundColor: "#f9fafb", mb: 3 }}
-      >
-        <Typography variant="h5" fontWeight="bold" align="center">
-          FINISHED
-        </Typography>
-      </Paper>
-      <Box sx={{ mb: 5 }}>
-        {ticketsFinished.length > 0 ? (
-          <TicketList tickets={ticketsFinished} />
-        ) : (
-          <Typography align="center" color="text.secondary">
-            No finished tickets.
-          </Typography>
-        )}
-      </Box> */}
         </Container>
     );
 };
