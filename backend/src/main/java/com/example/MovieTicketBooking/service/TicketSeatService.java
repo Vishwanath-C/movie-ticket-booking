@@ -1,6 +1,5 @@
 package com.example.MovieTicketBooking.service;
 
-import com.example.MovieTicketBooking.mapper.TicketSeatDtoMapper;
 import com.example.MovieTicketBooking.model.TicketSeat;
 import com.example.MovieTicketBooking.repository.TicketSeatRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import java.util.List;
 public class TicketSeatService
 {
     private final TicketSeatRepository ticketSeatRepository;
-    private final TicketSeatDtoMapper ticketSeatDtoMapper;
 
     @Transactional
     public List<TicketSeat> saveAll(List<TicketSeat> seats) {
