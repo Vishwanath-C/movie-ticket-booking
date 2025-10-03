@@ -1,47 +1,50 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
+// Replace this with your Render backend URL
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
+
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '127.0.0.1',
+    host: "127.0.0.1",
     port: 5176,
     proxy: {
+      // Only proxy API routes, leave static files untouched
       "/auth": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
       "/theatres": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
       "/movies": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
       "/seats": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
       "/tickets": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
       "/movie-schedules": {
-        target: "http://localhost:8080",
+        target: BACKEND_URL,
         changeOrigin: true,
-        secure: false,
+        secure: BACKEND_URL.startsWith("https"),
         rewrite: (path) => path,
       },
     },
