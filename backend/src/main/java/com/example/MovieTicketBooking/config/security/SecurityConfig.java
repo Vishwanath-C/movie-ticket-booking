@@ -110,6 +110,7 @@ public class SecurityConfig
     CorsConfigurationSource corsConfigurationSource() {
         var c = new CorsConfiguration();
         c.setAllowedOriginPatterns(List.of("http://localhost:*",
+                "https://frontend-production-defe.up.railway.app",
                 "http://127.0.0.1:*"));
         c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
