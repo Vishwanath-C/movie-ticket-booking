@@ -8,7 +8,7 @@ buildCommand = ""      # Can leave empty, per-service commands will override
 rootDir = "backend"
 buildCommand = "./gradlew clean build -x test -x check"
 startCommand = "java -jar build/libs/MovieTicketBooking-0.0.1-SNAPSHOT.jar --server.port=$PORT"
-env = { PORT = "8080" }
+env = { PORT = "8080", JAVA_VERSION = "17" }
 plugins = ["mysql"]
 
 [services.frontend]
