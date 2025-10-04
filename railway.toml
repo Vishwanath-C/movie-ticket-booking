@@ -15,7 +15,7 @@ plugins = ["mysql"]
 rootDir = "frontend"
 buildCommand = "npm install && npm run build"
 startCommand = "npx serve -s dist -l $PORT"
-env = { PORT = "3000", VITE_API_URL = "https://backend-production-60d7.up.railway.app" }
+env = { PORT = "3000"}
 
 [services.mysql]
 plugin = "mysql"
