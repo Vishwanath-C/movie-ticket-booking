@@ -1,18 +1,21 @@
 # railway.toml
 
 [build]
-builder = "NIXPACKS"   # Use Nixpacks builder
-buildCommand = ""      # Optional, can override if needed
+builder = "RAILPACK"   # Use the new Railpack builder
+buildCommand = ""      # Can leave empty, per-service commands will override
 
 [services.backend]
 rootDir = "backend"
-buildCommand = "./gradlew build -x test"
+buildCommand = "./gradlew clean build -x test -x check"
 startCommand = "java -jar build/libs/MovieTicketBooking-0.0.1-SNAPSHOT.jar --server.port=$PORT"
+env = { PORT = "8080" }
+plugins = ["mysql"]
 
 [services.frontend]
 rootDir = "frontend"
 buildCommand = "npm install && npm run build"
 startCommand = "npx serve -s dist -l $PORT"
+env = { PORT = "3000", VITE_API_URL = "https://<your-backend-service-url>" }
 
 [services.mysql]
 plugin = "mysql"
