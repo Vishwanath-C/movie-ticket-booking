@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import apiClient from "../src/api";
+import apiClient from "../api";
 import TheatreCard from "./TheatreCard";
 
 // MUI imports

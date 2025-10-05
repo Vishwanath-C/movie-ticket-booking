@@ -1,4 +1,4 @@
-import apiClient from "../src/api";
+import apiClient from "../api";
 import { useState } from "react";
 import { Button, Container, Dropdown, DropdownButton } from "react-bootstrap";
 

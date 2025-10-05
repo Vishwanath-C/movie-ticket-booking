@@ -4,7 +4,7 @@ import apiClient from "../api";
 import { getCurrentUser } from "../utils/auth";
 import SeatLayout from "./SeatLayout";
 import { Box, Typography, Chip, Card, CardContent, Snackbar, Alert, Button } from "@mui/material";
-import screen from '../src/assets/screen.png';
+import screen from '../assets/screen.png';
 
 const ShowSeatLayoutModern = () => {
   const token = localStorage.getItem('token');

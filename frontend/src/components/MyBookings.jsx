@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import apiClient from "../src/api";
+import apiClient from "../api";
 import TicketList from "./TicketList";
 
 const MyBookings = () => {

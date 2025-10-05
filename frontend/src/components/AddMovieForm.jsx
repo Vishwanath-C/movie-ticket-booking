@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import apiClient from "../src/api";
+import apiClient from "../api";
 
 function CustomAlert({ severity, msg, onClose }) {
   return (

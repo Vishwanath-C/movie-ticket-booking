@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "./api";
+import apiClient from "../api";
 import EmptyState from "./EmptyState";
 import TicketList from "./TicketList";
 

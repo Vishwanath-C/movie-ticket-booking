@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../src/api";
+import apiClient from "../api";
 import { Snackbar, Alert } from "@mui/material";
 
 

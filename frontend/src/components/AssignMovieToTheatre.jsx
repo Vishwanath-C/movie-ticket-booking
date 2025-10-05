@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import apiClient from "../src/api";
+import apiClient from "../api";
 import CreateMovieShow from "./CreateMovieShow";
 
 const AssignMovieToTheatre = () => {
