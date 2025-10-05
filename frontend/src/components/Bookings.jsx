@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import apiClient from "../src/api";
+import apiClient from "../api";
 
 const Bookings = () => {
   const location = useLocation();
@@ -112,7 +112,8 @@ const Bookings = () => {
 
   // Navigate to seat layout
   const goToSeatLayout = (selectedShow) => {
-    navigate("/app/seatlayout", { state: { selectedShow } });
+    console.log("Selected show : ", selectedShow);
+    navigate("/app/seatlayout", { state: { selectedShow  } });
   };
 
   return (

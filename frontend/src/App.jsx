@@ -2,23 +2,23 @@ import { Button, CssBaseline, Dialog, DialogActions, DialogContent, DialogConten
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
-import HomePage from "../components/HomePage";
-import Login from "../components/Login";
-import ProtectedRoute from "../components/ProtectedRoute";
-import PublicLayout from "../components/PublicLayout";
-import Register from "../components/Register";
+import HomePage from "./components/HomePage";
+import Login from "./components/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicLayout from "./components/PublicLayout";
+import Register from "./components/Register";
 
-import AddMovieForm from "../components/AddMovieForm";
-import AddTheatreAndSeats from "../components/AddTheatreAndSeats";
-import AssignMovieToTheatre from "../components/AssignMovieToTheatre";
-import Bookings from "../components/Bookings";
-import FinishedBookings from "../components/FinishedBookings";
-import MovieActions from "../components/MovieActions";
-import ShowSeatLayoutDup from "../components/ShowSeatLayoutDup";
-import Theatres from "../components/Theatres";
-import TicketPage from "../components/TicketPage";
-import UpcomingBookings from "../components/UpcomingBookings";
-import DashboardLayout from "../components/DashboardLayout";
+import AddMovieForm from "./components/AddMovieForm";
+import AddTheatreAndSeats from "./components/AddTheatreAndSeats";
+import AssignMovieToTheatre from "./components/AssignMovieToTheatre";
+import Bookings from "./components/Bookings";
+import FinishedBookings from "./components/FinishedBookings";
+import MovieActions from "./components/MovieActions";
+import ShowSeatLayoutDup from "./components/ShowSeatLayoutDup";
+import Theatres from "./components/Theatres";
+import TicketPage from "./components/TicketPage";
+import UpcomingBookings from "./components/UpcomingBookings";
+import DashboardLayout from "./components/DashboardLayout";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

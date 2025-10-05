@@ -24,7 +24,7 @@ const HomePage = ({ isLoggedIn }) => {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         🎬 Welcome to Movie Ticket Booking
       </Typography>
-
+     
       {!isLoggedIn && (
         <Box sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 2 }}>
           <Button

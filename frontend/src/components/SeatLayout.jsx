@@ -1,7 +1,10 @@
 
 import { Box, Card, CardContent, Typography } from "@mui/material";
+import { useEffect } from "react";
 
 export default function SeatLayout({ seats, handleSeatClick, selectedSeats }) {
+
+    useEffect(()=> {console.log("seat : ", seats)});
 
     const renderSeatGroup = (seatGroups, type) => {
         return Object.entries(seatGroups).map(([row, group]) => (
