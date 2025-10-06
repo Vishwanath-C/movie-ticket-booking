@@ -83,54 +83,17 @@ Frontend will run at **http://localhost:3000**
 
 ## 🔑 API Endpoints (Examples)
 
-### Authentication
-| Method | Endpoint             | Description       |
-|--------|----------------------|-------------------|
-| POST   | `/api/auth/signup`   | Register new user |
-| POST   | `/api/auth/login`    | Login user (JWT)  |
-
-### Movies
-| Method | Endpoint            | Role   | Description      |
-|--------|---------------------|--------|------------------|
-| GET    | `/api/movies`       | User   | List all movies  |
-| POST   | `/api/movies`       | Admin  | Add new movie    |
-
-### Theatres & Shows
-| Method | Endpoint              | Role   | Description       |
-|--------|-----------------------|--------|-------------------|
-| POST   | `/api/theatres`       | Admin  | Add theatre       |
-| POST   | `/api/movieshows`     | Admin  | Add movie show    |
-| GET    | `/api/movieshows`     | User   | Browse showtimes  |
-
-### Bookings
-| Method | Endpoint              | Role   | Description         |
-|--------|-----------------------|--------|---------------------|
-| POST   | `/api/bookings`       | User   | Book ticket         |
-| GET    | `/api/bookings/user`  | User   | View booking history|
-| GET    | `/api/bookings`       | Admin  | View all bookings   |
-
 ---
 
 ## 📸 Screenshots
-(Add some UI screenshots here: homepage, movie list, booking page, admin dashboard)
+
 
 ---
 
-## 📌 Future Enhancements
-- Online payment gateway integration
-- Email/SMS ticket confirmation
-- Movie recommendation system
-- Real-time seat availability
 
----
 
-## 🤝 Contributing
-Contributions are welcome! Fork the repo and submit a pull request.
 
----
 
-## 📜 License
-This project is licensed under the **MIT License**.  
 
 
 
